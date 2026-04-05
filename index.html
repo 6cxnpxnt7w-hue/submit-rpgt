@@ -443,8 +443,23 @@
       </div>
 
       <div id="resultCard" class="result-card">
-        <div class="big-title">提出完了！</div>
-        <div id="resultName" style="font-size:1.4rem;font-weight:bold;"></div>
+  <div class="big-title">提出完了！</div>
+
+  <div style="margin: 14px 0;">
+    <img id="resultCharacterImage" src="" alt="称号画像" style="
+      width: 180px;
+      max-width: 70%;
+      height: auto;
+      display: none;
+      border-radius: 16px;
+      border: 3px solid #f0d07d;
+      background: rgba(255,255,255,0.06);
+      padding: 8px;
+      box-shadow: 0 0 18px rgba(255, 223, 120, 0.18);
+    ">
+  </div>
+
+  <div id="resultName" style="font-size:1.4rem;font-weight:bold;"></div>
         <div id="resultTitle" style="margin-top:8px;font-size:1.1rem;color:#ffe39b;"></div>
         <div style="margin-top:8px;">レベル: <span id="resultLevel"></span></div>
         <div style="margin-top:4px;">経験値: <span id="resultExp"></span> / 20</div>
@@ -623,6 +638,22 @@
       if (level >= 5) return "新米冒険者";
       return "村人";
     }
+    function getImageByTitle(title) {
+  const imageMap = {
+    "村人": "images/murabito.PNG",
+    "新米冒険者": "images/Shinmai.PNG",
+    "冒険者": "images/Boukennsya.PNG",
+    "上級冒険者": "images/Zyoukyu.PNG",
+    "剣士": "images/Kenshi.PNG",
+    "上級剣士": "images/jokennshi.PNG",
+    "賢者": "images/kenja.PNG",
+    "大賢者": "images/Daikenja.PNG",
+    "勇者": "images/Yusya.PNG",
+    "伝説の勇者": "images/Densetsu.PNG"
+  };
+
+  return imageMap[title] || "";
+}
 
     function buildStudentId(number, name) {
       return `${context.teacherId}__${context.className}__${number}__${name}`;
@@ -1155,23 +1186,34 @@
       setScanMessage(`${student.name} さんの提出を記録しました。`);
     }
 
-    function showResult(student, subject, leveledUp) {
-      const card = document.getElementById("resultCard");
-      document.getElementById("resultName").textContent = `${context.className} ${student.number}番 ${student.name}`;
-      document.getElementById("resultTitle").textContent = `称号：${student.title}`;
-      document.getElementById("resultLevel").textContent = student.level;
-      document.getElementById("resultExp").textContent = student.exp;
-      document.getElementById("resultExpBar").style.width = `${(student.exp / 20) * 100}%`;
-      document.getElementById("resultSubject").textContent = `今回の提出教科：${subject}`;
-      document.getElementById("levelUpMessage").textContent = leveledUp ? "レベルアップ！ おめでとう！" : "";
+   function showResult(student, subject, leveledUp) {
+  const card = document.getElementById("resultCard");
+  document.getElementById("resultName").textContent = `${context.className} ${student.number}番 ${student.name}`;
+  document.getElementById("resultTitle").textContent = `称号：${student.title}`;
+  document.getElementById("resultLevel").textContent = student.level;
+  document.getElementById("resultExp").textContent = student.exp;
+  document.getElementById("resultExpBar").style.width = `${(student.exp / 20) * 100}%`;
+  document.getElementById("resultSubject").textContent = `今回の提出教科：${subject}`;
+  document.getElementById("levelUpMessage").textContent = leveledUp ? "レベルアップ！ おめでとう！" : "";
 
-      card.classList.add("show");
-      renderRadarChart(student);
+  const img = document.getElementById("resultCharacterImage");
+  const imagePath = getImageByTitle(student.title);
 
-      setTimeout(() => {
-        card.classList.remove("show");
-      }, 30000);
-    }
+  if (imagePath) {
+    img.src = imagePath;
+    img.style.display = "inline-block";
+  } else {
+    img.src = "";
+    img.style.display = "none";
+  }
+
+  card.classList.add("show");
+  renderRadarChart(student);
+
+  setTimeout(() => {
+    card.classList.remove("show");
+  }, 30000);
+}
 
     function renderRadarChart(student) {
       const canvas = document.getElementById("radarChart");
