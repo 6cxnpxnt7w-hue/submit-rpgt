@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>提出RPG QRシステム</title>
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  color:white;
+  background:url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat fixed;
+}
+.overlay{
+  background:rgba(0,0,0,0.7);
+  min-height:100vh;
+  padding:20px;
+}
+h1{
+  color:gold;
+}
+.card{
+  background:rgba(20,20,30,0.9);
+  border:1px solid gold;
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+}
+button{
+  background:gold;
+  color:black;
+  border:none;
+  padding:10px 20px;
+  border-radius:8px;
+  font-weight:bold;
+}
+</style>
+</head>
+<body>
+<div class="overlay">
+<h1>提出RPG QRシステム</h1>
 
+<div class="card">
+<h2>新規冒険者登録</h2>
+<input id="name" placeholder="冒険者の名前">
+<button onclick="addPlayer()">登録</button>
+</div>
+
+<div class="card">
+<h2>ギルドメンバー</h2>
+<div id="players"></div>
+</div>
+</div>
+
+<script>
+let players = JSON.parse(localStorage.getItem("players") || "[]");
+
+function titleByLevel(level){
+  if(level>=85) return "伝説の勇者";
+  if(level>=70) return "勇者";
+  if(level>=60) return "大賢者";
+  if(level>=50) return "賢者";
+  if(level>=40) return "上級剣士";
+  if(level>=30) return "剣士";
+  if(level>=20) return "上級冒険者";
+  if(level>=10) return "冒険者";
+  if(level>=5) return "新米冒険者";
+  return "村人";
+}
+
+function addPlayer(){
+  const name=document.getElementById("name").value;
+  if(!name) return;
+  players.push({name, xp:0, level:1});
+  save();
+}
+
+function gainXP(index){
+  players[index].xp += 5;
+  while(players[index].xp >= 20){
+    players[index].xp -= 20;
+    players[index].level += 1;
+  }
+  save();
+}
+
+function save(){
+  localStorage.setItem("players", JSON.stringify(players));
+  render();
+}
+
+function render(){
+  const el=document.getElementById("players");
+  el.innerHTML="";
+  players.forEach((p,i)=>{
+    el.innerHTML += `
+      <div class="card">
+        <h3>${p.name}</h3>
+        <p>Lv.${p.level} ${titleByLevel(p.level)}</p>
+        <p>XP ${p.xp}/20</p>
+        <button onclick="gainXP(${i})">QR読み取り (+5XP)</button>
+      </div>
+    `;
+  });
+}
+render();
+</script>
+</body>
+</html>
