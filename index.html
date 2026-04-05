@@ -3,588 +3,521 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>提出物クエスト</title>
+  <title>提出RPG QRシステム 完全版</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
       margin: 0;
-      padding: 0;
-      background: #f4f7fb;
-      color: #222;
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      background:
+        radial-gradient(circle at top, #27345e 0%, #18203b 45%, #0c1120 100%);
+      color: #fff;
+      min-height: 100vh;
     }
 
     header {
-      background: linear-gradient(135deg, #4f7cff, #6a5cff);
-      color: white;
-      padding: 20px;
+      background: linear-gradient(90deg, #5b3a15, #b28635, #5b3a15);
+      border-bottom: 3px solid #f4da92;
+      padding: 18px 12px;
       text-align: center;
-      font-size: 1.6rem;
-      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
 
-    .container {
-      max-width: 1100px;
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      text-shadow: 2px 2px 0 #000;
+      letter-spacing: 1px;
+    }
+
+    .wrap {
+      max-width: 1250px;
       margin: 0 auto;
       padding: 16px;
     }
 
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    .tabs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
 
-    h2 {
-      margin-top: 0;
-      font-size: 1.2rem;
-      border-left: 6px solid #4f7cff;
-      padding-left: 10px;
-    }
-
-    input, button, select, textarea {
-      font-size: 1rem;
-      padding: 10px 12px;
-      margin: 6px 0;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: #4f7cff;
-      color: white;
+    .tab-btn {
+      width: auto;
+      padding: 10px 18px;
+      background: linear-gradient(#42559c, #24366b);
+      color: #fff;
+      border: 2px solid #e8d28f;
+      border-radius: 12px;
       font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #15234f;
     }
 
-    button:hover {
-      background: #365fd8;
+    .tab-btn.active {
+      background: linear-gradient(#ae8535, #755819);
+      border-color: #fff0b0;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .panel {
+      background: rgba(19, 25, 45, 0.96);
+      border: 2px solid #d8bb72;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+    }
+
+    .panel h2, .panel h3 {
+      margin-top: 0;
+      color: #ffe7a4;
+      text-shadow: 1px 1px 0 #000;
     }
 
     .row {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
+      align-items: flex-start;
     }
 
     .col {
-      flex: 1 1 320px;
+      flex: 1;
+      min-width: 220px;
     }
 
-    #reader {
+    input, select, button, textarea {
       width: 100%;
-      max-width: 420px;
-      margin: 10px auto;
-    }
-
-    #resultBox {
-      text-align: center;
       padding: 12px;
-      background: #eef4ff;
-      border-radius: 12px;
+      border-radius: 10px;
+      border: 2px solid #c7ab63;
+      margin-top: 8px;
+      font-size: 1rem;
+    }
+
+    input, select, textarea {
+      background: #f5efdf;
+      color: #222;
+    }
+
+    button {
+      background: linear-gradient(#6f8cff, #4156ba);
+      color: white;
+      cursor: pointer;
+      border: 2px solid #dde7ff;
+      font-weight: bold;
+      box-shadow: 0 4px 0 #263783;
+    }
+
+    button:hover { filter: brightness(1.05); }
+
+    button.secondary {
+      background: linear-gradient(#a7863b, #6c531d);
+      border-color: #ffeab0;
+      box-shadow: 0 4px 0 #483813;
+    }
+
+    button.danger {
+      background: linear-gradient(#d86464, #922f2f);
+      border-color: #ffd4d4;
+      box-shadow: 0 4px 0 #5f2121;
+    }
+
+    .small-btn {
+      width: auto;
+      display: inline-block;
+      padding: 8px 12px;
+      margin: 4px;
+      font-size: 0.9rem;
+    }
+
+    .message-box {
+      background: rgba(255,255,255,0.08);
+      border-left: 5px solid #ffd87a;
+      padding: 12px;
+      border-radius: 10px;
       margin-top: 12px;
+      white-space: pre-wrap;
     }
 
-    #titleImage {
-      width: 180px;
-      height: 180px;
-      object-fit: contain;
-      margin-top: 10px;
-      display: none;
+    .status-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .student-list {
-      max-height: 240px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 10px;
-      background: #fafafa;
+    .pill {
+      display: inline-block;
+      padding: 8px 14px;
+      background: linear-gradient(#b58a35, #77571a);
+      border: 2px solid #ffebad;
+      border-radius: 999px;
+      font-weight: bold;
+      box-shadow: 0 3px 0 #513a12;
     }
 
-    .student-item {
-      padding: 8px;
-      border-bottom: 1px solid #eee;
+    .muted {
+      opacity: 0.88;
       font-size: 0.95rem;
     }
 
-    .student-item:last-child {
-      border-bottom: none;
+    .student-hero {
+      text-align: center;
+      padding: 18px;
+      border-radius: 18px;
+      background:
+        linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.02)),
+        radial-gradient(circle at top, #3d4c86 0%, #1b2443 65%, #101522 100%);
+      border: 3px solid #f1d486;
+      margin-bottom: 18px;
+      box-shadow: 0 0 24px rgba(255, 223, 120, 0.14);
+    }
+
+    .student-hero h2 {
+      margin: 0 0 10px;
+      font-size: 1.8rem;
+      color: #fff2bb;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .exp-bar-wrap {
+      max-width: 520px;
+      height: 22px;
+      margin: 10px auto;
+      background: #1a213d;
+      border: 2px solid #f0d07d;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .exp-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #57d5ff, #72ffa1);
+      transition: width 0.4s ease;
+    }
+
+    #reader {
+      max-width: 420px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 8px;
+      border-radius: 14px;
     }
 
     .subject-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(120px, 1fr));
-      gap: 8px;
-      margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
     }
 
-    .subject-grid label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #f7f9fc;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
+    .subject-btn {
+      background: linear-gradient(#7180ff, #4352b8);
     }
 
-    .history-list {
-      max-height: 300px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background: #fafafa;
-      padding: 10px;
+    .result-card {
+      margin-top: 18px;
+      text-align: center;
+      padding: 16px;
+      border-radius: 18px;
+      border: 3px solid #ffe39b;
+      background: linear-gradient(180deg, #2b3767, #151c34);
+      box-shadow: 0 0 20px rgba(255, 222, 124, 0.18);
+      display: none;
     }
 
-    .history-item {
-      padding: 8px;
-      border-bottom: 1px solid #eee;
-      font-size: 0.92rem;
+    .result-card.show { display: block; }
+
+    .big-title {
+      font-size: 2rem;
+      color: #fff2b6;
+      text-shadow: 2px 2px 0 #000;
+      margin-bottom: 10px;
     }
 
-    .history-item:last-child {
-      border-bottom: none;
-    }
-
-    .danger {
-      background: #e74c3c;
-    }
-
-    .danger:hover {
-      background: #c0392b;
-    }
-
-    .subtle {
-      background: #777;
-    }
-
-    .subtle:hover {
-      background: #555;
-    }
-
-    .small {
-      font-size: 0.88rem;
-      color: #555;
-    }
-
-    .badge {
+    .qr-box {
+      background: #fff;
       display: inline-block;
-      background: #e8efff;
-      color: #3154c7;
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      margin-right: 6px;
-      margin-bottom: 6px;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 8px;
+    }
+
+    .student-card-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .student-card {
+      background: rgba(255,255,255,0.05);
+      border: 2px solid #d6b96b;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    th, td {
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: rgba(255, 222, 124, 0.15);
+      color: #ffe8a7;
+    }
+
+    .footer-note {
+      text-align: center;
+      opacity: 0.78;
+      padding: 10px 0 30px;
+      font-size: 0.9rem;
+    }
+
+    .danger-note {
+      color: #ffd8d8;
+      font-size: 0.95rem;
     }
 
     canvas {
-      max-width: 100%;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 6px;
     }
 
-    .teacher-key-box {
-      background: #fff8e8;
-      border: 1px solid #f0d98a;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 10px;
+    @media (max-width: 768px) {
+      header h1 { font-size: 1.25rem; }
+      .big-title { font-size: 1.45rem; }
+      th, td { font-size: 0.88rem; padding: 8px; }
     }
   </style>
 </head>
 <body>
-  <header>提出物クエスト</header>
+  <header>
+    <h1>⚔️ 提出RPG QRシステム 完全版 ⚔️</h1>
+  </header>
 
-  <div class="container">
-    <div class="card">
-      <h2>① 先生キー設定</h2>
-      <div class="teacher-key-box">
-        <div>先生ごとにデータを分けるため、最初にキーを入れてください。</div>
-        <input type="text" id="teacherKey" placeholder="例：3A_shakai_hase" />
-        <button onclick="saveTeacherKey()">先生キーを保存</button>
-        <div id="teacherKeyStatus" class="small"></div>
-      </div>
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('admin')">教師用管理画面</button>
+      <button class="tab-btn" onclick="switchTab('student')">生徒用読み取り画面</button>
+      <button class="tab-btn" onclick="switchTab('settings')">保存設定</button>
     </div>
 
-    <div class="row">
-      <div class="col">
-        <div class="card">
-          <h2>② 生徒登録</h2>
-          <input type="text" id="studentName" placeholder="生徒名" />
-          <input type="text" id="studentId" placeholder="QRコードの中身（例：s001）" />
-          <button onclick="addStudent()">生徒を登録</button>
-          <button class="subtle" onclick="downloadStudents()">名簿を保存</button>
-          <div class="student-list" id="studentList"></div>
+    <section id="admin" class="screen active">
+      <div class="panel">
+        <h2>現在の保存先</h2>
+        <div class="status-line">
+          <span class="pill">教師ID: <span id="statusTeacherId">未設定</span></span>
+          <span class="pill">クラス: <span id="statusClassName">未設定</span></span>
+          <span class="pill">生徒数: <span id="statusStudentCount">0</span>人</span>
         </div>
+        <p class="muted">
+          このアプリは「教師ID」と「クラス名」でデータを分けて保存します。<br>
+          別の先生は別の教師IDを使えば、同じ端末でもデータが混ざりにくくなります。
+        </p>
+      </div>
 
-        <div class="card">
-          <h2>③ QRコード読み取り</h2>
-          <div id="reader"></div>
-          <button onclick="startScanner()">スキャン開始</button>
-          <button class="subtle" onclick="stopScanner()">スキャン停止</button>
+      <div class="panel">
+        <h2>生徒登録</h2>
+        <div class="row">
+          <div class="col">
+            <label>出席番号</label>
+            <input id="studentNumber" type="text" placeholder="例：1">
+          </div>
+          <div class="col">
+            <label>生徒名</label>
+            <input id="studentName" type="text" placeholder="例：山田 太郎">
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <div class="col">
+            <button onclick="addStudent()">生徒を登録する</button>
+          </div>
+          <div class="col">
+            <button class="secondary" onclick="sortStudentsByNumber()">番号順に並べ直す</button>
+          </div>
+        </div>
+        <div id="adminMessage" class="message-box">最初に「保存設定」で教師IDとクラス名を設定してください。</div>
+      </div>
 
-          <div id="resultBox">
-            <div id="scanMessage">まだ読み取っていません</div>
-            <div id="studentStatus"></div>
-
-            <div class="subject-grid">
-              <label><input type="checkbox" value="数学" class="subjectCheck" /> 数学</label>
-              <label><input type="checkbox" value="理科" class="subjectCheck" /> 理科</label>
-              <label><input type="checkbox" value="社会" class="subjectCheck" /> 社会</label>
-              <label><input type="checkbox" value="英語" class="subjectCheck" /> 英語</label>
-              <label><input type="checkbox" value="国語" class="subjectCheck" /> 国語</label>
-              <label><input type="checkbox" value="その他" class="subjectCheck" /> その他</label>
-            </div>
-
-            <button onclick="confirmSubmission()">提出を確定する</button>
-            <br />
-            <img id="titleImage" src="" alt="称号画像" />
+      <div class="panel">
+        <h2>QRコード管理</h2>
+        <div class="row">
+          <div class="col">
+            <button class="secondary" onclick="downloadAllQRCodes()">全員分のQRコードをZIP保存</button>
+          </div>
+          <div class="col">
+            <button class="secondary" onclick="exportCurrentClassData()">今のクラスのデータを書き出す</button>
+          </div>
+          <div class="col">
+            <label>クラスデータ読み込み</label>
+            <input type="file" accept=".json" onchange="importCurrentClassData(event)">
           </div>
         </div>
       </div>
 
-      <div class="col">
-        <div class="card">
-          <h2>④ 教科別レーダーチャート</h2>
-          <canvas id="radarChart"></canvas>
-        </div>
-
-        <div class="card">
-          <h2>⑤ 履歴</h2>
-          <button class="danger" onclick="clearHistory()">履歴を全消去</button>
-          <div class="history-list" id="historyList"></div>
+      <div class="panel">
+        <h2>生徒一覧</h2>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>番号</th>
+                <th>氏名</th>
+                <th>レベル</th>
+                <th>称号</th>
+                <th>経験値</th>
+                <th>最終提出日</th>
+                <th>QR</th>
+                <th>削除</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
         </div>
       </div>
-    </div>
+
+      <div class="panel">
+        <h2>生徒ステータス一覧</h2>
+        <div id="studentCards" class="student-card-list"></div>
+      </div>
+    </section>
+
+    <section id="student" class="screen">
+      <div class="student-hero">
+        <h2>📜 冒険の提出ゲート 📜</h2>
+        <div class="status-line" style="justify-content:center;">
+          <span class="pill">教師ID: <span id="studentScreenTeacherId">未設定</span></span>
+          <span class="pill">クラス: <span id="studentScreenClassName">未設定</span></span>
+        </div>
+        <div class="pill">1回の提出で +5 EXP</div>
+        <div class="pill">20 EXPでレベルアップ</div>
+        <div class="pill">読み取り後30秒表示</div>
+        <p class="muted">今設定されている教師ID・クラスのQRコードだけを受け付けます。</p>
+      </div>
+
+      <div class="panel">
+        <h3>QRコード読み取り</h3>
+        <div id="reader"></div>
+        <div style="margin-top:12px;">
+          <button onclick="startScanner()">カメラ起動</button>
+          <button class="secondary" onclick="stopScanner()">カメラ停止</button>
+        </div>
+        <div id="scanMessage" class="message-box">保存設定を確認してから読み取りを開始してください。</div>
+      </div>
+
+      <div class="panel" id="subjectPanel" style="display:none;">
+        <h3>教科を選んでください</h3>
+        <div class="subject-grid">
+          <button class="subject-btn" onclick="applySubmission('数学')">数学</button>
+          <button class="subject-btn" onclick="applySubmission('理科')">理科</button>
+          <button class="subject-btn" onclick="applySubmission('社会')">社会</button>
+          <button class="subject-btn" onclick="applySubmission('英語')">英語</button>
+          <button class="subject-btn" onclick="applySubmission('国語')">国語</button>
+          <button class="subject-btn" onclick="applySubmission('その他')">その他</button>
+        </div>
+      </div>
+
+      <div id="resultCard" class="result-card">
+        <div class="big-title">提出完了！</div>
+        <div id="resultName" style="font-size:1.4rem;font-weight:bold;"></div>
+        <div id="resultTitle" style="margin-top:8px;font-size:1.1rem;color:#ffe39b;"></div>
+        <div style="margin-top:8px;">レベル: <span id="resultLevel"></span></div>
+        <div style="margin-top:4px;">経験値: <span id="resultExp"></span> / 20</div>
+        <div class="exp-bar-wrap">
+          <div id="resultExpBar" class="exp-bar"></div>
+        </div>
+        <div id="resultSubject" style="margin-top:8px;"></div>
+        <div id="levelUpMessage" style="margin-top:10px;color:#9dffb6;font-weight:bold;"></div>
+
+        <div class="panel" style="margin-top:16px;">
+          <h3>教科別提出状況</h3>
+          <div style="height:320px;">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings" class="screen">
+      <div class="panel">
+        <h2>保存設定</h2>
+        <div class="row">
+          <div class="col">
+            <label>教師ID</label>
+            <input id="teacherIdInput" type="text" placeholder="例：haze_teacher">
+            <p class="muted">英数字・ハイフン・アンダーバー推奨。先生ごとに別IDにしてください。</p>
+          </div>
+          <div class="col">
+            <label>クラス名</label>
+            <input id="classNameInput" type="text" placeholder="例：3A">
+            <p class="muted">学級ごとに切り替えて保存します。</p>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <div class="col">
+            <button onclick="saveContext()">この保存先で使う</button>
+          </div>
+          <div class="col">
+            <button class="secondary" onclick="createEmptyClass()">空のクラスを作る</button>
+          </div>
+        </div>
+        <div id="settingsMessage" class="message-box">ここで教師IDとクラス名を設定します。</div>
+      </div>
+
+      <div class="panel">
+        <h2>保存済みクラス一覧</h2>
+        <div id="savedClassList" class="student-card-list"></div>
+      </div>
+
+      <div class="panel">
+        <h2>現在のクラスを初期化</h2>
+        <p class="danger-note">※ 今選択中の教師ID・クラスの生徒データだけを削除します。</p>
+        <button class="danger" onclick="resetCurrentClass()">現在のクラスを初期化する</button>
+      </div>
+    </section>
   </div>
 
+  <div class="footer-note">GitHub Pages対応 / localStorage保存 / 教師別・クラス別分離版</div>
+
   <script>
+    const APP_STORAGE_KEY = "rpg_qr_system_v4";
+    const APP_CONTEXT_KEY = "rpg_qr_system_context_v4";
+    const SUBJECTS = ["数学", "理科", "社会", "英語", "国語", "その他"];
+
     let html5QrCode = null;
-    let currentScannedId = null;
     let radarChart = null;
+    let scannedStudentId = null;
 
-    const EXP_PER_SCAN = 5;
-    const EXP_PER_LEVEL = 20;
+    let db = loadDb();
+    let context = loadContext();
 
-    const titleRules = [
-      { level: 85, title: "伝説の勇者", image: "images/legend-hero.png" },
-      { level: 70, title: "勇者", image: "images/hero.png" },
-      { level: 60, title: "大賢者", image: "images/great-sage.png" },
-      { level: 50, title: "賢者", image: "images/sage.png" },
-      { level: 40, title: "上級剣士", image: "images/master-swordsman.png" },
-      { level: 30, title: "剣士", image: "images/swordsman.png" },
-      { level: 20, title: "上級冒険者", image: "images/advanced-adventurer.png" },
-      { level: 10, title: "冒険者", image: "images/adventurer.png" },
-      { level: 5, title: "新米冒険者", image: "images/newbie-adventurer.png" },
-      { level: 0, title: "村人", image: "images/villager.png" }
-    ];
-
-    const subjects = ["数学", "理科", "社会", "英語", "国語", "その他"];
-
-    function getTeacherKey() {
-      return localStorage.getItem("teacherKey") || "";
-    }
-
-    function saveTeacherKey() {
-      const key = document.getElementById("teacherKey").value.trim();
-      if (!key) {
-        alert("先生キーを入力してください。");
-        return;
-      }
-      localStorage.setItem("teacherKey", key);
-      document.getElementById("teacherKeyStatus").textContent = `現在の先生キー：${key}`;
-      loadStudents();
-      loadHistory();
-      updateRadarChart();
-    }
-
-    function getStorageKey(name) {
-      const teacherKey = getTeacherKey();
-      if (!teacherKey) return null;
-      return `${teacherKey}_${name}`;
-    }
-
-    function loadData(name, fallback) {
-      const key = getStorageKey(name);
-      if (!key) return fallback;
-      return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-    }
-
-    function saveData(name, data) {
-      const key = getStorageKey(name);
-      if (!key) return;
-      localStorage.setItem(key, JSON.stringify(data));
-    }
-
-    function calcLevel(exp) {
-      return Math.floor(exp / EXP_PER_LEVEL);
-    }
-
-    function getTitleByLevel(level) {
-      for (const rule of titleRules) {
-        if (level >= rule.level) return rule;
-      }
-      return titleRules[titleRules.length - 1];
-    }
-
-    function todayString() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
-    }
-
-    function addStudent() {
-      if (!getTeacherKey()) {
-        alert("先に先生キーを設定してください。");
-        return;
-      }
-
-      const name = document.getElementById("studentName").value.trim();
-      const id = document.getElementById("studentId").value.trim();
-
-      if (!name || !id) {
-        alert("生徒名とQRコードの中身を入力してください。");
-        return;
-      }
-
-      const students = loadData("students", []);
-      if (students.find(s => s.id === id)) {
-        alert("そのIDはすでに登録されています。");
-        return;
-      }
-
-      students.push({
-        id,
-        name,
-        exp: 0,
-        lastScanDate: "",
-        subjectCounts: {
-          "数学": 0,
-          "理科": 0,
-          "社会": 0,
-          "英語": 0,
-          "国語": 0,
-          "その他": 0
-        }
-      });
-
-      saveData("students", students);
-      document.getElementById("studentName").value = "";
-      document.getElementById("studentId").value = "";
-      loadStudents();
-      updateRadarChart();
-    }
-
-    function loadStudents() {
-      const list = document.getElementById("studentList");
-      if (!getTeacherKey()) {
-        list.innerHTML = "<div class='student-item'>先生キーを設定してください。</div>";
-        return;
-      }
-
-      const students = loadData("students", []);
-      if (students.length === 0) {
-        list.innerHTML = "<div class='student-item'>まだ生徒が登録されていません。</div>";
-        return;
-      }
-
-      list.innerHTML = students.map(student => {
-        const level = calcLevel(student.exp);
-        const title = getTitleByLevel(level).title;
-        return `
-          <div class="student-item">
-            <strong>${student.name}</strong><br>
-            ID: ${student.id}<br>
-            経験値: ${student.exp} / レベル: ${level} / 称号: ${title}
-          </div>
-        `;
-      }).join("");
-    }
-
-    function downloadStudents() {
-      const students = loadData("students", []);
-      const blob = new Blob([JSON.stringify(students, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "students.json";
-      a.click();
-    }
-
-    function startScanner() {
-      if (!getTeacherKey()) {
-        alert("先に先生キーを設定してください。");
-        return;
-      }
-
-      if (html5QrCode) return;
-
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 220 },
-        (decodedText) => {
-          currentScannedId = decodedText.trim();
-          const students = loadData("students", []);
-          const student = students.find(s => s.id === currentScannedId);
-
-          if (!student) {
-            document.getElementById("scanMessage").textContent = `未登録のQRコードです：${currentScannedId}`;
-            document.getElementById("studentStatus").innerHTML = "";
-            document.getElementById("titleImage").style.display = "none";
-            return;
-          }
-
-          const level = calcLevel(student.exp);
-          const titleInfo = getTitleByLevel(level);
-
-          document.getElementById("scanMessage").textContent = `読み取り成功：${student.name}`;
-          document.getElementById("studentStatus").innerHTML = `
-            <div class="badge">経験値 ${student.exp}</div>
-            <div class="badge">レベル ${level}</div>
-            <div class="badge">称号 ${titleInfo.title}</div>
-          `;
-        },
-        (errorMessage) => {
-        }
-      ).catch(err => {
-        alert("カメラを起動できませんでした。");
-        console.error(err);
-      });
-    }
-
-    function stopScanner() {
-      if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-          html5QrCode.clear();
-          html5QrCode = null;
-        }).catch(err => {
-          console.error(err);
-        });
-      }
-    }
-
-    function confirmSubmission() {
-      if (!currentScannedId) {
-        alert("先にQRコードを読み取ってください。");
-        return;
-      }
-
-      const students = loadData("students", []);
-      const histories = loadData("histories", []);
-      const student = students.find(s => s.id === currentScannedId);
-
-      if (!student) {
-        alert("生徒が見つかりません。");
-        return;
-      }
-
-      const selectedSubjects = Array.from(document.querySelectorAll(".subjectCheck:checked"))
-        .map(cb => cb.value);
-
-      if (selectedSubjects.length === 0) {
-        alert("教科を1つ以上選んでください。");
-        return;
-      }
-
-      const today = todayString();
-      if (student.lastScanDate === today) {
-        alert("この生徒は今日はすでに提出済みです。");
-        return;
-      }
-
-      student.exp += EXP_PER_SCAN;
-      student.lastScanDate = today;
-
-      selectedSubjects.forEach(subject => {
-        student.subjectCounts[subject] += 1;
-      });
-
-      const level = calcLevel(student.exp);
-      const titleInfo = getTitleByLevel(level);
-
-      histories.unshift({
-        date: new Date().toLocaleString("ja-JP"),
-        studentId: student.id,
-        studentName: student.name,
-        subjects: selectedSubjects,
-        exp: student.exp,
-        level: level,
-        title: titleInfo.title
-      });
-
-      saveData("students", students);
-      saveData("histories", histories);
-
-      document.getElementById("studentStatus").innerHTML = `
-        <div><strong>${student.name}</strong> の提出を記録しました。</div>
-        <div class="badge">経験値 ${student.exp}</div>
-        <div class="badge">レベル ${level}</div>
-        <div class="badge">称号 ${titleInfo.title}</div>
-      `;
-
-      const titleImage = document.getElementById("titleImage");
-      titleImage.src = titleInfo.image;
-      titleImage.style.display = "inline-block";
-
-      setTimeout(() => {
-        titleImage.style.display = "none";
-      }, 10000);
-
-      document.querySelectorAll(".subjectCheck").forEach(cb => cb.checked = false);
-
-      loadStudents();
-      loadHistory();
-      updateRadarChart();
-    }
-
-    function loadHistory() {
-      const list = document.getElementById("historyList");
-      if (!getTeacherKey()) {
-        list.innerHTML = "<div class='history-item'>先生キーを設定してください。</div>";
-        return;
-      }
-
-      const histories = loadData("histories", []);
-      if (histories.length === 0) {
-        list.innerHTML = "<div class='history-item'>まだ履歴がありません。</div>";
-        return;
-      }
-
-      list.innerHTML = histories.map(h => `
-        <div class="history-item">
-          <strong>${h.studentName}</strong><br>
-          ${h.date}<br>
-          教科: ${h.subjects.join("、")}<br>
-          経験値: ${h.exp} / レベル: ${h.level} / 称号: ${h.title}
-        </div>
-      `).join("");
-    }
-
-    function clearHistory() {
-      if (!getTeacherKey()) {
-        alert("先に先生キーを設定してください。");
-        return;
-      }
-
-      if (!confirm("履歴をすべて削除しますか？")) return;
-      saveData("histories", []);
-      loadHistory();
-    }
-
-    function updateRadarChart() {
-      const students = loadData("students", []);
-      const totals = {
+    function defaultSubjects() {
+      return {
         "数学": 0,
         "理科": 0,
         "社会": 0,
@@ -592,53 +525,866 @@
         "国語": 0,
         "その他": 0
       };
+    }
 
-      students.forEach(student => {
-        subjects.forEach(subject => {
-          totals[subject] += student.subjectCounts[subject] || 0;
-        });
+    function loadDb() {
+      const saved = localStorage.getItem(APP_STORAGE_KEY);
+      if (!saved) return { teachers: {} };
+      try {
+        const parsed = JSON.parse(saved);
+        if (!parsed.teachers) parsed.teachers = {};
+        return parsed;
+      } catch {
+        return { teachers: {} };
+      }
+    }
+
+    function saveDb() {
+      localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(db));
+    }
+
+    function loadContext() {
+      const saved = localStorage.getItem(APP_CONTEXT_KEY);
+      if (!saved) return { teacherId: "", className: "" };
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          teacherId: parsed.teacherId || "",
+          className: parsed.className || ""
+        };
+      } catch {
+        return { teacherId: "", className: "" };
+      }
+    }
+
+    function saveContextToStorage() {
+      localStorage.setItem(APP_CONTEXT_KEY, JSON.stringify(context));
+    }
+
+    function normalizeTeacherId(str) {
+      return String(str || "")
+        .trim()
+        .replace(/\s+/g, "_");
+    }
+
+    function normalizeClassName(str) {
+      return String(str || "").trim();
+    }
+
+    function ensureTeacher(teacherId) {
+      if (!db.teachers[teacherId]) {
+        db.teachers[teacherId] = { classes: {} };
+      }
+    }
+
+    function ensureClass(teacherId, className) {
+      ensureTeacher(teacherId);
+      if (!db.teachers[teacherId].classes[className]) {
+        db.teachers[teacherId].classes[className] = {
+          students: []
+        };
+      }
+    }
+
+    function isContextReady() {
+      return !!(context.teacherId && context.className);
+    }
+
+    function getCurrentStudents() {
+      if (!isContextReady()) return [];
+      ensureClass(context.teacherId, context.className);
+      return db.teachers[context.teacherId].classes[context.className].students;
+    }
+
+    function setCurrentStudents(students) {
+      if (!isContextReady()) return;
+      ensureClass(context.teacherId, context.className);
+      db.teachers[context.teacherId].classes[context.className].students = students;
+      saveDb();
+    }
+
+    function getTodayString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function getTitleByLevel(level) {
+      if (level >= 85) return "伝説の勇者";
+      if (level >= 70) return "勇者";
+      if (level >= 60) return "大賢者";
+      if (level >= 50) return "賢者";
+      if (level >= 40) return "上級剣士";
+      if (level >= 30) return "剣士";
+      if (level >= 20) return "上級冒険者";
+      if (level >= 10) return "冒険者";
+      if (level >= 5) return "新米冒険者";
+      return "村人";
+    }
+
+    function buildStudentId(number, name) {
+      return `${context.teacherId}__${context.className}__${number}__${name}`;
+    }
+
+    function buildQrPayload(student) {
+      return JSON.stringify({
+        app: "rpg-qr-system",
+        version: 1,
+        teacherId: context.teacherId,
+        className: context.className,
+        studentId: student.id
       });
+    }
 
-      const ctx = document.getElementById("radarChart").getContext("2d");
+    function parseQrPayload(text) {
+      try {
+        const obj = JSON.parse(text);
+        if (obj && obj.app === "rpg-qr-system" && obj.studentId) {
+          return obj;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    }
 
-      if (radarChart) {
-        radarChart.destroy();
+    function switchTab(tabId) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+
+      document.getElementById(tabId).classList.add("active");
+
+      const buttons = document.querySelectorAll(".tab-btn");
+      if (tabId === "admin") buttons[0].classList.add("active");
+      if (tabId === "student") buttons[1].classList.add("active");
+      if (tabId === "settings") buttons[2].classList.add("active");
+    }
+
+    function setAdminMessage(msg) {
+      document.getElementById("adminMessage").textContent = msg;
+    }
+
+    function setScanMessage(msg) {
+      document.getElementById("scanMessage").textContent = msg;
+    }
+
+    function setSettingsMessage(msg) {
+      document.getElementById("settingsMessage").textContent = msg;
+    }
+
+    function saveContext() {
+      const teacherId = normalizeTeacherId(document.getElementById("teacherIdInput").value);
+      const className = normalizeClassName(document.getElementById("classNameInput").value);
+
+      if (!teacherId || !className) {
+        setSettingsMessage("教師IDとクラス名の両方を入力してください。");
+        return;
       }
 
-      radarChart = new Chart(ctx, {
+      context.teacherId = teacherId;
+      context.className = className;
+      ensureClass(teacherId, className);
+      saveDb();
+      saveContextToStorage();
+      refreshAllUI();
+
+      setSettingsMessage(`保存先を「${teacherId} / ${className}」に切り替えました。`);
+      setAdminMessage(`現在の保存先は「${teacherId} / ${className}」です。`);
+      setScanMessage(`現在の保存先は「${teacherId} / ${className}」です。QR読み取りを開始できます。`);
+    }
+
+    function createEmptyClass() {
+      const teacherId = normalizeTeacherId(document.getElementById("teacherIdInput").value);
+      const className = normalizeClassName(document.getElementById("classNameInput").value);
+
+      if (!teacherId || !className) {
+        setSettingsMessage("教師IDとクラス名を入力してから作成してください。");
+        return;
+      }
+
+      ensureClass(teacherId, className);
+      saveDb();
+      renderSavedClassList();
+      setSettingsMessage(`空のクラス「${teacherId} / ${className}」を作成しました。`);
+    }
+
+    function addStudent() {
+      if (!isContextReady()) {
+        setAdminMessage("先に保存設定で教師IDとクラス名を設定してください。");
+        return;
+      }
+
+      const number = document.getElementById("studentNumber").value.trim();
+      const name = document.getElementById("studentName").value.trim();
+
+      if (!number || !name) {
+        setAdminMessage("出席番号と生徒名を入力してください。");
+        return;
+      }
+
+      const students = getCurrentStudents();
+      const id = buildStudentId(number, name);
+
+      const exists = students.some(s => s.id === id);
+      if (exists) {
+        setAdminMessage("同じ生徒はすでに登録されています。");
+        return;
+      }
+
+      students.push({
+        id,
+        number,
+        name,
+        exp: 0,
+        level: 1,
+        title: getTitleByLevel(1),
+        lastScanDate: "",
+        subjectCounts: defaultSubjects()
+      });
+
+      setCurrentStudents(students);
+      renderStudents();
+      updateStatusArea();
+
+      document.getElementById("studentNumber").value = "";
+      document.getElementById("studentName").value = "";
+
+      setAdminMessage(`生徒「${context.className} ${number}番 ${name}」を登録しました。`);
+    }
+
+    function sortStudentsByNumber() {
+      if (!isContextReady()) {
+        setAdminMessage("先に保存設定をしてください。");
+        return;
+      }
+
+      const students = getCurrentStudents();
+      students.sort((a, b) => {
+        const na = Number(a.number);
+        const nb = Number(b.number);
+        if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+        return String(a.number).localeCompare(String(b.number), "ja");
+      });
+
+      setCurrentStudents(students);
+      renderStudents();
+      setAdminMessage("番号順に並べ直しました。");
+    }
+
+    function renderStudents() {
+      const tbody = document.getElementById("studentTableBody");
+      const cards = document.getElementById("studentCards");
+      tbody.innerHTML = "";
+      cards.innerHTML = "";
+
+      if (!isContextReady()) {
+        tbody.innerHTML = `<tr><td colspan="8">保存設定で教師IDとクラス名を設定してください。</td></tr>`;
+        cards.innerHTML = `<div class="message-box">設定後にここへ表示されます。</div>`;
+        return;
+      }
+
+      const students = getCurrentStudents();
+
+      if (students.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8">このクラスにはまだ生徒が登録されていません。</td></tr>`;
+        cards.innerHTML = `<div class="message-box">生徒を登録するとここに表示されます。</div>`;
+        return;
+      }
+
+      students.forEach((student, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(student.number)}</td>
+          <td>${escapeHtml(student.name)}</td>
+          <td>${student.level}</td>
+          <td>${student.title}</td>
+          <td>${student.exp}</td>
+          <td>${student.lastScanDate || "なし"}</td>
+          <td>
+            <button class="small-btn secondary" onclick="showQrModal(${index})">表示</button>
+            <button class="small-btn" onclick="downloadQrImage(${index})">保存</button>
+          </td>
+          <td>
+            <button class="small-btn danger" onclick="deleteStudent(${index})">削除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        const totalSubmissions = Object.values(student.subjectCounts || {}).reduce((a,b) => a + b, 0);
+        const card = document.createElement("div");
+        card.className = "student-card";
+        card.innerHTML = `
+          <h3>${escapeHtml(context.className)} ${escapeHtml(student.number)}番 ${escapeHtml(student.name)}</h3>
+          <p>称号：${student.title}</p>
+          <p>レベル：${student.level}</p>
+          <p>経験値：${student.exp} / 20</p>
+          <p>提出回数合計：${totalSubmissions}</p>
+          <p>最終提出日：${student.lastScanDate || "なし"}</p>
+          <div class="exp-bar-wrap">
+            <div class="exp-bar" style="width:${(student.exp / 20) * 100}%"></div>
+          </div>
+        `;
+        cards.appendChild(card);
+      });
+    }
+
+    function deleteStudent(index) {
+      if (!isContextReady()) return;
+      const students = getCurrentStudents();
+      const target = students[index];
+      if (!target) return;
+
+      const ok = confirm(`${context.className} ${target.number}番 ${target.name} を削除しますか？`);
+      if (!ok) return;
+
+      students.splice(index, 1);
+      setCurrentStudents(students);
+      renderStudents();
+      updateStatusArea();
+      setAdminMessage("生徒を削除しました。");
+    }
+
+    async function makeQrCanvas(student) {
+      const wrapper = document.createElement("div");
+      const box = document.createElement("div");
+      box.style.background = "#fff";
+      box.style.padding = "12px";
+      wrapper.appendChild(box);
+
+      new QRCode(box, {
+        text: buildQrPayload(student),
+        width: 220,
+        height: 220
+      });
+
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const img = box.querySelector("img");
+          const canvas = box.querySelector("canvas");
+
+          if (canvas) {
+            resolve(canvas);
+          } else if (img) {
+            const c = document.createElement("canvas");
+            c.width = 220;
+            c.height = 220;
+            const ctx = c.getContext("2d");
+            const tempImg = new Image();
+            tempImg.onload = () => {
+              ctx.fillStyle = "#fff";
+              ctx.fillRect(0, 0, c.width, c.height);
+              ctx.drawImage(tempImg, 0, 0);
+              resolve(c);
+            };
+            tempImg.src = img.src;
+          }
+        }, 300);
+      });
+    }
+
+    async function downloadQrImage(index) {
+      if (!isContextReady()) return;
+      const students = getCurrentStudents();
+      const student = students[index];
+      if (!student) return;
+
+      const qrCanvas = await makeQrCanvas(student);
+
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = 340;
+      finalCanvas.height = 420;
+      const ctx2 = finalCanvas.getContext("2d");
+
+      ctx2.fillStyle = "#ffffff";
+      ctx2.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+      ctx2.fillStyle = "#1a1a1a";
+      ctx2.textAlign = "center";
+      ctx2.font = "bold 22px sans-serif";
+      ctx2.fillText("提出RPG QR", 170, 35);
+
+      ctx2.font = "17px sans-serif";
+      ctx2.fillText(`教師ID: ${context.teacherId}`, 170, 65);
+      ctx2.fillText(`クラス: ${context.className}`, 170, 92);
+      ctx2.fillText(`${student.number}番 ${student.name}`, 170, 119);
+
+      ctx2.drawImage(qrCanvas, 60, 145, 220, 220);
+
+      const link = document.createElement("a");
+      link.href = finalCanvas.toDataURL("image/png");
+      link.download = `${context.teacherId}_${context.className}_${student.number}_${student.name}_QR.png`;
+      link.click();
+    }
+
+    async function downloadAllQRCodes() {
+      if (!isContextReady()) {
+        setAdminMessage("先に保存設定をしてください。");
+        return;
+      }
+
+      const students = getCurrentStudents();
+      if (students.length === 0) {
+        setAdminMessage("生徒が登録されていないため、一括保存できません。");
+        return;
+      }
+
+      setAdminMessage("QRコードを作成中です。少し待ってください…");
+      const zip = new JSZip();
+
+      for (const student of students) {
+        const qrCanvas = await makeQrCanvas(student);
+
+        const finalCanvas = document.createElement("canvas");
+        finalCanvas.width = 340;
+        finalCanvas.height = 420;
+        const ctx2 = finalCanvas.getContext("2d");
+
+        ctx2.fillStyle = "#ffffff";
+        ctx2.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+        ctx2.fillStyle = "#1a1a1a";
+        ctx2.textAlign = "center";
+        ctx2.font = "bold 22px sans-serif";
+        ctx2.fillText("提出RPG QR", 170, 35);
+
+        ctx2.font = "17px sans-serif";
+        ctx2.fillText(`教師ID: ${context.teacherId}`, 170, 65);
+        ctx2.fillText(`クラス: ${context.className}`, 170, 92);
+        ctx2.fillText(`${student.number}番 ${student.name}`, 170, 119);
+
+        ctx2.drawImage(qrCanvas, 60, 145, 220, 220);
+
+        const dataUrl = finalCanvas.toDataURL("image/png");
+        const base64 = dataUrl.split(",")[1];
+        zip.file(
+          `${context.teacherId}_${context.className}_${student.number}_${student.name}_QR.png`,
+          base64,
+          { base64: true }
+        );
+      }
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(content);
+      link.download = `${context.teacherId}_${context.className}_QRコード一括.zip`;
+      link.click();
+
+      setAdminMessage("全員分のQRコードをZIPで保存しました。");
+    }
+
+    async function showQrModal(index) {
+      if (!isContextReady()) return;
+      const students = getCurrentStudents();
+      const student = students[index];
+      if (!student) return;
+
+      const old = document.getElementById("qrPreviewModal");
+      if (old) old.remove();
+
+      const modal = document.createElement("div");
+      modal.id = "qrPreviewModal";
+      modal.style.position = "fixed";
+      modal.style.inset = "0";
+      modal.style.background = "rgba(0,0,0,0.75)";
+      modal.style.display = "flex";
+      modal.style.alignItems = "center";
+      modal.style.justifyContent = "center";
+      modal.style.zIndex = "9999";
+
+      const box = document.createElement("div");
+      box.style.background = "#1a223f";
+      box.style.border = "3px solid #f2d17a";
+      box.style.borderRadius = "18px";
+      box.style.padding = "20px";
+      box.style.textAlign = "center";
+      box.style.maxWidth = "92%";
+
+      box.innerHTML = `
+        <h3 style="margin-top:0;color:#ffe39b;">${context.className} ${student.number}番 ${escapeHtml(student.name)}</h3>
+        <p style="margin-top:0;">教師ID: ${escapeHtml(context.teacherId)}</p>
+        <div class="qr-box" id="qrPreviewTarget"></div>
+        <div style="margin-top:14px;">
+          <button class="small-btn" id="saveQrBtn">画像保存</button>
+          <button class="small-btn danger" id="closeQrBtn">閉じる</button>
+        </div>
+      `;
+
+      modal.appendChild(box);
+      document.body.appendChild(modal);
+
+      new QRCode(document.getElementById("qrPreviewTarget"), {
+        text: buildQrPayload(student),
+        width: 220,
+        height: 220
+      });
+
+      document.getElementById("closeQrBtn").onclick = () => modal.remove();
+      document.getElementById("saveQrBtn").onclick = () => downloadQrImage(index);
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+      };
+    }
+
+    async function startScanner() {
+      if (!isContextReady()) {
+        setScanMessage("先に保存設定で教師IDとクラス名を設定してください。");
+        return;
+      }
+
+      if (!window.Html5Qrcode) {
+        setScanMessage("QR読み取りライブラリが読み込めませんでした。");
+        return;
+      }
+
+      if (html5QrCode) {
+        setScanMessage("すでにカメラは起動しています。");
+        return;
+      }
+
+      html5QrCode = new Html5Qrcode("reader");
+
+      try {
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          onScanSuccess,
+          () => {}
+        );
+        setScanMessage("カメラを起動しました。QRコードをかざしてください。");
+      } catch (err) {
+        html5QrCode = null;
+        setScanMessage("カメラを起動できませんでした。GitHub Pages上ではHTTPS公開なら動きやすいです。");
+      }
+    }
+
+    async function stopScanner() {
+      if (!html5QrCode) {
+        setScanMessage("カメラは停止中です。");
+        return;
+      }
+
+      try {
+        await html5QrCode.stop();
+        await html5QrCode.clear();
+      } catch (e) {}
+
+      html5QrCode = null;
+      setScanMessage("カメラを停止しました。");
+    }
+
+    function onScanSuccess(decodedText) {
+      if (!isContextReady()) {
+        setScanMessage("保存設定が未設定です。");
+        return;
+      }
+
+      const payload = parseQrPayload(decodedText);
+      if (!payload) {
+        setScanMessage("このQRコードはこのアプリ用ではありません。");
+        return;
+      }
+
+      if (payload.teacherId !== context.teacherId || payload.className !== context.className) {
+        setScanMessage("別の教師IDまたは別クラスのQRコードです。現在の保存先とは一致しません。");
+        return;
+      }
+
+      const students = getCurrentStudents();
+      const student = students.find(s => s.id === payload.studentId);
+
+      if (!student) {
+        setScanMessage("このクラスに登録されていない生徒のQRコードです。");
+        return;
+      }
+
+      scannedStudentId = student.id;
+      document.getElementById("subjectPanel").style.display = "block";
+      setScanMessage(`「${context.className} ${student.number}番 ${student.name}」を読み取りました。教科を選んでください。`);
+    }
+
+    function applySubmission(subject) {
+      if (!isContextReady()) {
+        setScanMessage("保存設定が未設定です。");
+        return;
+      }
+
+      if (!scannedStudentId) {
+        setScanMessage("先にQRコードを読み取ってください。");
+        return;
+      }
+
+      const students = getCurrentStudents();
+      const student = students.find(s => s.id === scannedStudentId);
+
+      if (!student) {
+        setScanMessage("生徒データが見つかりません。");
+        return;
+      }
+
+      const today = getTodayString();
+      if (student.lastScanDate === today) {
+        setScanMessage(`${student.name} さんは今日はすでに提出済みです。`);
+        return;
+      }
+
+      const beforeLevel = student.level;
+
+      student.exp += 5;
+      student.lastScanDate = today;
+      if (!student.subjectCounts) student.subjectCounts = defaultSubjects();
+      student.subjectCounts[subject] = (student.subjectCounts[subject] || 0) + 1;
+
+      while (student.exp >= 20) {
+        student.exp -= 20;
+        student.level += 1;
+      }
+
+      student.title = getTitleByLevel(student.level);
+
+      setCurrentStudents(students);
+      renderStudents();
+      updateStatusArea();
+
+      const leveledUp = student.level > beforeLevel;
+      showResult(student, subject, leveledUp);
+
+      scannedStudentId = null;
+      document.getElementById("subjectPanel").style.display = "none";
+      setScanMessage(`${student.name} さんの提出を記録しました。`);
+    }
+
+    function showResult(student, subject, leveledUp) {
+      const card = document.getElementById("resultCard");
+      document.getElementById("resultName").textContent = `${context.className} ${student.number}番 ${student.name}`;
+      document.getElementById("resultTitle").textContent = `称号：${student.title}`;
+      document.getElementById("resultLevel").textContent = student.level;
+      document.getElementById("resultExp").textContent = student.exp;
+      document.getElementById("resultExpBar").style.width = `${(student.exp / 20) * 100}%`;
+      document.getElementById("resultSubject").textContent = `今回の提出教科：${subject}`;
+      document.getElementById("levelUpMessage").textContent = leveledUp ? "レベルアップ！ おめでとう！" : "";
+
+      card.classList.add("show");
+      renderRadarChart(student);
+
+      setTimeout(() => {
+        card.classList.remove("show");
+      }, 30000);
+    }
+
+    function renderRadarChart(student) {
+      const canvas = document.getElementById("radarChart");
+      const ctx2 = canvas.getContext("2d");
+      const data = SUBJECTS.map(label => (student.subjectCounts && student.subjectCounts[label]) || 0);
+
+      if (radarChart) radarChart.destroy();
+
+      radarChart = new Chart(ctx2, {
         type: "radar",
         data: {
-          labels: subjects,
+          labels: SUBJECTS,
           datasets: [{
-            label: "教科別提出数",
-            data: subjects.map(subject => totals[subject]),
-            fill: true
+            label: "提出回数",
+            data,
+            borderWidth: 2
           }]
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           scales: {
             r: {
               beginAtZero: true,
               ticks: {
-                stepSize: 1
-              }
+                backdropColor: "transparent",
+                color: "#ffffff"
+              },
+              pointLabels: {
+                color: "#ffffff",
+                font: { size: 14 }
+              },
+              grid: { color: "rgba(255,255,255,0.2)" },
+              angleLines: { color: "rgba(255,255,255,0.2)" }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: "#ffffff" }
             }
           }
         }
       });
     }
 
-    window.onload = function() {
-      const teacherKey = getTeacherKey();
-      if (teacherKey) {
-        document.getElementById("teacherKey").value = teacherKey;
-        document.getElementById("teacherKeyStatus").textContent = `現在の先生キー：${teacherKey}`;
+    function exportCurrentClassData() {
+      if (!isContextReady()) {
+        setAdminMessage("先に保存設定をしてください。");
+        return;
       }
-      loadStudents();
-      loadHistory();
-      updateRadarChart();
-    };
+
+      const exportObject = {
+        teacherId: context.teacherId,
+        className: context.className,
+        students: getCurrentStudents()
+      };
+
+      const blob = new Blob([JSON.stringify(exportObject, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${context.teacherId}_${context.className}_提出RPGデータ.json`;
+      link.click();
+
+      setAdminMessage("今のクラスのデータを書き出しました。");
+    }
+
+    function importCurrentClassData(event) {
+      if (!isContextReady()) {
+        setAdminMessage("先に保存設定をしてください。");
+        event.target.value = "";
+        return;
+      }
+
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!Array.isArray(data.students)) throw new Error();
+
+          ensureClass(context.teacherId, context.className);
+          db.teachers[context.teacherId].classes[context.className].students = data.students.map(s => ({
+            id: s.id,
+            number: s.number,
+            name: s.name,
+            exp: Number(s.exp || 0),
+            level: Number(s.level || 1),
+            title: s.title || getTitleByLevel(Number(s.level || 1)),
+            lastScanDate: s.lastScanDate || "",
+            subjectCounts: {
+              ...defaultSubjects(),
+              ...(s.subjectCounts || {})
+            }
+          }));
+
+          saveDb();
+          renderStudents();
+          updateStatusArea();
+          setAdminMessage("今のクラスにデータを読み込みました。");
+        } catch {
+          setAdminMessage("JSONデータの読み込みに失敗しました。");
+        }
+
+        event.target.value = "";
+      };
+      reader.readAsText(file);
+    }
+
+    function resetCurrentClass() {
+      if (!isContextReady()) {
+        setSettingsMessage("先に保存設定をしてください。");
+        return;
+      }
+
+      const ok = confirm(`本当に「${context.teacherId} / ${context.className}」の生徒データを初期化しますか？`);
+      if (!ok) return;
+
+      ensureClass(context.teacherId, context.className);
+      db.teachers[context.teacherId].classes[context.className].students = [];
+      saveDb();
+
+      renderStudents();
+      updateStatusArea();
+      renderSavedClassList();
+
+      setSettingsMessage(`「${context.teacherId} / ${context.className}」を初期化しました。`);
+      setAdminMessage("現在のクラスのデータを初期化しました。");
+    }
+
+    function updateStatusArea() {
+      document.getElementById("statusTeacherId").textContent = context.teacherId || "未設定";
+      document.getElementById("statusClassName").textContent = context.className || "未設定";
+      document.getElementById("studentScreenTeacherId").textContent = context.teacherId || "未設定";
+      document.getElementById("studentScreenClassName").textContent = context.className || "未設定";
+
+      const count = isContextReady() ? getCurrentStudents().length : 0;
+      document.getElementById("statusStudentCount").textContent = count;
+    }
+
+    function renderSavedClassList() {
+      const area = document.getElementById("savedClassList");
+      area.innerHTML = "";
+
+      const teacherIds = Object.keys(db.teachers || {});
+      if (teacherIds.length === 0) {
+        area.innerHTML = `<div class="message-box">まだ保存済みクラスはありません。</div>`;
+        return;
+      }
+
+      teacherIds.forEach(teacherId => {
+        const classes = db.teachers[teacherId].classes || {};
+        Object.keys(classes).forEach(className => {
+          const students = classes[className].students || [];
+          const card = document.createElement("div");
+          card.className = "student-card";
+          card.innerHTML = `
+            <h3>${escapeHtml(teacherId)} / ${escapeHtml(className)}</h3>
+            <p>生徒数：${students.length}人</p>
+            <button class="small-btn secondary" onclick="useSavedClass('${jsEscape(teacherId)}','${jsEscape(className)}')">この保存先を使う</button>
+          `;
+          area.appendChild(card);
+        });
+      });
+    }
+
+    function useSavedClass(teacherId, className) {
+      context.teacherId = teacherId;
+      context.className = className;
+      saveContextToStorage();
+      refreshAllUI();
+
+      setSettingsMessage(`保存先を「${teacherId} / ${className}」に切り替えました。`);
+      setAdminMessage(`保存先を「${teacherId} / ${className}」に切り替えました。`);
+      setScanMessage(`現在の保存先は「${teacherId} / ${className}」です。`);
+    }
+
+    function refreshAllUI() {
+      document.getElementById("teacherIdInput").value = context.teacherId || "";
+      document.getElementById("classNameInput").value = context.className || "";
+
+      renderStudents();
+      renderSavedClassList();
+      updateStatusArea();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function jsEscape(str) {
+      return String(str)
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'");
+    }
+
+    refreshAllUI();
+
+    if (isContextReady()) {
+      setAdminMessage(`現在の保存先は「${context.teacherId} / ${context.className}」です。`);
+      setScanMessage(`現在の保存先は「${context.teacherId} / ${context.className}」です。`);
+      setSettingsMessage("保存設定は読み込み済みです。必要ならここで切り替えてください。");
+    } else {
+      setAdminMessage("最初に「保存設定」で教師IDとクラス名を設定してください。");
+      setScanMessage("最初に「保存設定」で教師IDとクラス名を設定してください。");
+      setSettingsMessage("教師IDとクラス名を設定して使い始めてください。");
+    }
   </script>
 </body>
 </html>
