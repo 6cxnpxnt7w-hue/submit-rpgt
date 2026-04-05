@@ -331,13 +331,15 @@
       <div class="panel">
         <h2>現在の保存先</h2>
         <div class="status-line">
+          <span class="pill">学校ID: <span id="statusSchoolId">未設定</span></span>
+          <span class="pill">学校名: <span id="statusSchoolName">未設定</span></span>
           <span class="pill">教師ID: <span id="statusTeacherId">未設定</span></span>
           <span class="pill">クラス: <span id="statusClassName">未設定</span></span>
           <span class="pill">生徒数: <span id="statusStudentCount">0</span>人</span>
         </div>
         <p class="muted">
-          このアプリは「教師ID」と「クラス名」でデータを分けて保存します。<br>
-          別の先生は別の教師IDを使えば、同じ端末でもデータが混ざりにくくなります。
+          このアプリは「学校ID」「学校名」「教師ID」「クラス名」で管理します。<br>
+          学校名は表示用、学校IDは保存・判定用です。
         </p>
       </div>
 
@@ -361,7 +363,7 @@
             <button class="secondary" onclick="sortStudentsByNumber()">番号順に並べ直す</button>
           </div>
         </div>
-        <div id="adminMessage" class="message-box">最初に「保存設定」で教師IDとクラス名を設定してください。</div>
+        <div id="adminMessage" class="message-box">最初に「保存設定」で学校ID・学校名・教師ID・クラス名を設定してください。</div>
       </div>
 
       <div class="panel">
@@ -411,13 +413,15 @@
       <div class="student-hero">
         <h2>📜 冒険の提出ゲート 📜</h2>
         <div class="status-line" style="justify-content:center;">
+          <span class="pill">学校ID: <span id="studentScreenSchoolId">未設定</span></span>
+          <span class="pill">学校名: <span id="studentScreenSchoolName">未設定</span></span>
           <span class="pill">教師ID: <span id="studentScreenTeacherId">未設定</span></span>
           <span class="pill">クラス: <span id="studentScreenClassName">未設定</span></span>
         </div>
         <div class="pill">1回の提出で +5 EXP</div>
         <div class="pill">20 EXPでレベルアップ</div>
         <div class="pill">読み取り後30秒表示</div>
-        <p class="muted">今設定されている教師ID・クラスのQRコードだけを受け付けます。</p>
+        <p class="muted">今設定されている学校ID・教師ID・クラスのQRコードだけを受け付けます。</p>
       </div>
 
       <div class="panel">
@@ -443,23 +447,23 @@
       </div>
 
       <div id="resultCard" class="result-card">
-  <div class="big-title">提出完了！</div>
+        <div class="big-title">提出完了！</div>
 
-  <div style="margin: 14px 0;">
-    <img id="resultCharacterImage" src="" alt="称号画像" style="
-      width: 180px;
-      max-width: 70%;
-      height: auto;
-      display: none;
-      border-radius: 16px;
-      border: 3px solid #f0d07d;
-      background: rgba(255,255,255,0.06);
-      padding: 8px;
-      box-shadow: 0 0 18px rgba(255, 223, 120, 0.18);
-    ">
-  </div>
+        <div style="margin: 14px 0;">
+          <img id="resultCharacterImage" src="" alt="称号画像" style="
+            width: 180px;
+            max-width: 70%;
+            height: auto;
+            display: none;
+            border-radius: 16px;
+            border: 3px solid #f0d07d;
+            background: rgba(255,255,255,0.06);
+            padding: 8px;
+            box-shadow: 0 0 18px rgba(255, 223, 120, 0.18);
+          ">
+        </div>
 
-  <div id="resultName" style="font-size:1.4rem;font-weight:bold;"></div>
+        <div id="resultName" style="font-size:1.4rem;font-weight:bold;"></div>
         <div id="resultTitle" style="margin-top:8px;font-size:1.1rem;color:#ffe39b;"></div>
         <div style="margin-top:8px;">レベル: <span id="resultLevel"></span></div>
         <div style="margin-top:4px;">経験値: <span id="resultExp"></span> / 20</div>
@@ -483,9 +487,19 @@
         <h2>保存設定</h2>
         <div class="row">
           <div class="col">
+            <label>学校ID</label>
+            <input id="schoolIdInput" type="text" placeholder="例：hieda">
+            <p class="muted">内部管理用のIDです。</p>
+          </div>
+          <div class="col">
+            <label>学校名</label>
+            <input id="schoolNameInput" type="text" placeholder="例：高山市立日枝中学校">
+            <p class="muted">画面表示用の学校名です。</p>
+          </div>
+          <div class="col">
             <label>教師ID</label>
-            <input id="teacherIdInput" type="text" placeholder="例：haze_teacher">
-            <p class="muted">英数字・ハイフン・アンダーバー推奨。先生ごとに別IDにしてください。</p>
+            <input id="teacherIdInput" type="text" placeholder="例：yuiga">
+            <p class="muted">英数字・ハイフン・アンダーバー推奨です。</p>
           </div>
           <div class="col">
             <label>クラス名</label>
@@ -501,7 +515,7 @@
             <button class="secondary" onclick="createEmptyClass()">空のクラスを作る</button>
           </div>
         </div>
-        <div id="settingsMessage" class="message-box">ここで教師IDとクラス名を設定します。</div>
+        <div id="settingsMessage" class="message-box">ここで学校ID・学校名・教師ID・クラス名を設定します。</div>
       </div>
 
       <div class="panel">
@@ -511,17 +525,17 @@
 
       <div class="panel">
         <h2>現在のクラスを初期化</h2>
-        <p class="danger-note">※ 今選択中の教師ID・クラスの生徒データだけを削除します。</p>
+        <p class="danger-note">※ 今選択中の学校ID・教師ID・クラスの生徒データだけを削除します。</p>
         <button class="danger" onclick="resetCurrentClass()">現在のクラスを初期化する</button>
       </div>
     </section>
   </div>
 
-  <div class="footer-note">GitHub Pages対応 / localStorage保存 / 教師別・クラス別分離版</div>
+  <div class="footer-note">GitHub Pages対応 / localStorage保存 / 学校名表示つき学校別・教師別・クラス別分離版</div>
 
   <script>
-    const APP_STORAGE_KEY = "rpg_qr_system_v4";
-    const APP_CONTEXT_KEY = "rpg_qr_system_context_v4";
+    const APP_STORAGE_KEY = "rpg_qr_system_v7";
+    const APP_CONTEXT_KEY = "rpg_qr_system_context_v7";
     const SUBJECTS = ["数学", "理科", "社会", "英語", "国語", "その他"];
 
     let html5QrCode = null;
@@ -544,13 +558,13 @@
 
     function loadDb() {
       const saved = localStorage.getItem(APP_STORAGE_KEY);
-      if (!saved) return { teachers: {} };
+      if (!saved) return { schools: {} };
       try {
         const parsed = JSON.parse(saved);
-        if (!parsed.teachers) parsed.teachers = {};
+        if (!parsed.schools) parsed.schools = {};
         return parsed;
       } catch {
-        return { teachers: {} };
+        return { schools: {} };
       }
     }
 
@@ -560,15 +574,17 @@
 
     function loadContext() {
       const saved = localStorage.getItem(APP_CONTEXT_KEY);
-      if (!saved) return { teacherId: "", className: "" };
+      if (!saved) return { schoolId: "", schoolName: "", teacherId: "", className: "" };
       try {
         const parsed = JSON.parse(saved);
         return {
+          schoolId: parsed.schoolId || "",
+          schoolName: parsed.schoolName || "",
           teacherId: parsed.teacherId || "",
           className: parsed.className || ""
         };
       } catch {
-        return { teacherId: "", className: "" };
+        return { schoolId: "", schoolName: "", teacherId: "", className: "" };
       }
     }
 
@@ -576,46 +592,69 @@
       localStorage.setItem(APP_CONTEXT_KEY, JSON.stringify(context));
     }
 
+    function normalizeSchoolId(str) {
+      return String(str || "").trim().replace(/\s+/g, "_");
+    }
+
     function normalizeTeacherId(str) {
-      return String(str || "")
-        .trim()
-        .replace(/\s+/g, "_");
+      return String(str || "").trim().replace(/\s+/g, "_");
     }
 
     function normalizeClassName(str) {
       return String(str || "").trim();
     }
 
-    function ensureTeacher(teacherId) {
-      if (!db.teachers[teacherId]) {
-        db.teachers[teacherId] = { classes: {} };
+    function normalizeSchoolName(str) {
+      return String(str || "").trim();
+    }
+
+    function ensureSchool(schoolId, schoolName = "") {
+      if (!db.schools) db.schools = {};
+      if (!db.schools[schoolId]) {
+        db.schools[schoolId] = {
+          schoolName: schoolName || "",
+          teachers: {}
+        };
+      } else if (schoolName) {
+        db.schools[schoolId].schoolName = schoolName;
       }
     }
 
-    function ensureClass(teacherId, className) {
-      ensureTeacher(teacherId);
-      if (!db.teachers[teacherId].classes[className]) {
-        db.teachers[teacherId].classes[className] = {
+    function ensureTeacher(schoolId, teacherId, schoolName = "") {
+      ensureSchool(schoolId, schoolName);
+      if (!db.schools[schoolId].teachers[teacherId]) {
+        db.schools[schoolId].teachers[teacherId] = { classes: {} };
+      }
+    }
+
+    function ensureClass(schoolId, teacherId, className, schoolName = "") {
+      ensureTeacher(schoolId, teacherId, schoolName);
+      if (!db.schools[schoolId].teachers[teacherId].classes[className]) {
+        db.schools[schoolId].teachers[teacherId].classes[className] = {
           students: []
         };
       }
     }
 
     function isContextReady() {
-      return !!(context.teacherId && context.className);
+      return !!(context.schoolId && context.teacherId && context.className);
     }
 
     function getCurrentStudents() {
       if (!isContextReady()) return [];
-      ensureClass(context.teacherId, context.className);
-      return db.teachers[context.teacherId].classes[context.className].students;
+      ensureClass(context.schoolId, context.teacherId, context.className, context.schoolName);
+      return db.schools[context.schoolId].teachers[context.teacherId].classes[context.className].students;
     }
 
     function setCurrentStudents(students) {
       if (!isContextReady()) return;
-      ensureClass(context.teacherId, context.className);
-      db.teachers[context.teacherId].classes[context.className].students = students;
+      ensureClass(context.schoolId, context.teacherId, context.className, context.schoolName);
+      db.schools[context.schoolId].teachers[context.teacherId].classes[context.className].students = students;
       saveDb();
+    }
+
+    function getSchoolNameById(schoolId) {
+      return db.schools?.[schoolId]?.schoolName || "";
     }
 
     function getTodayString() {
@@ -638,31 +677,32 @@
       if (level >= 5) return "新米冒険者";
       return "村人";
     }
-    function getImageByTitle(title) {
-  const imageMap = {
-    "村人": "images/murabito.PNG",
-    "新米冒険者": "images/Shinmai.PNG",
-    "冒険者": "images/Boukennsya.PNG",
-    "上級冒険者": "images/Zyoukyu.PNG",
-    "剣士": "images/Kenshi.PNG",
-    "上級剣士": "images/jokennshi.PNG",
-    "賢者": "images/kenja.PNG",
-    "大賢者": "images/Daikenja.PNG",
-    "勇者": "images/Yusya.PNG",
-    "伝説の勇者": "images/Densetsu.PNG"
-  };
 
-  return imageMap[title] || "";
-}
+    function getImageByTitle(title) {
+      const imageMap = {
+        "村人": "images/murabito.PNG",
+        "新米冒険者": "images/Shinmai.PNG",
+        "冒険者": "images/Boukennsya.PNG",
+        "上級冒険者": "images/Zyoukyu.PNG",
+        "剣士": "images/Kenshi.PNG",
+        "上級剣士": "images/jokennshi.PNG",
+        "賢者": "images/kenja.PNG",
+        "大賢者": "images/Daikenja.PNG",
+        "勇者": "images/Yusya.PNG",
+        "伝説の勇者": "images/Densetsu.PNG"
+      };
+      return imageMap[title] || "";
+    }
 
     function buildStudentId(number, name) {
-      return `${context.teacherId}__${context.className}__${number}__${name}`;
+      return `${context.schoolId}__${context.teacherId}__${context.className}__${number}__${name}`;
     }
 
     function buildQrPayload(student) {
       return JSON.stringify({
         app: "rpg-qr-system",
         version: 1,
+        schoolId: context.schoolId,
         teacherId: context.teacherId,
         className: context.className,
         studentId: student.id
@@ -706,44 +746,51 @@
     }
 
     function saveContext() {
+      const schoolId = normalizeSchoolId(document.getElementById("schoolIdInput").value);
+      const schoolName = normalizeSchoolName(document.getElementById("schoolNameInput").value);
       const teacherId = normalizeTeacherId(document.getElementById("teacherIdInput").value);
       const className = normalizeClassName(document.getElementById("classNameInput").value);
 
-      if (!teacherId || !className) {
-        setSettingsMessage("教師IDとクラス名の両方を入力してください。");
+      if (!schoolId || !schoolName || !teacherId || !className) {
+        setSettingsMessage("学校ID・学校名・教師ID・クラス名のすべてを入力してください。");
         return;
       }
 
+      context.schoolId = schoolId;
+      context.schoolName = schoolName;
       context.teacherId = teacherId;
       context.className = className;
-      ensureClass(teacherId, className);
+
+      ensureClass(schoolId, teacherId, className, schoolName);
       saveDb();
       saveContextToStorage();
       refreshAllUI();
 
-      setSettingsMessage(`保存先を「${teacherId} / ${className}」に切り替えました。`);
-      setAdminMessage(`現在の保存先は「${teacherId} / ${className}」です。`);
-      setScanMessage(`現在の保存先は「${teacherId} / ${className}」です。QR読み取りを開始できます。`);
+      setSettingsMessage(`保存先を「${schoolName}（${schoolId}） / ${teacherId} / ${className}」に切り替えました。`);
+      setAdminMessage(`現在の保存先は「${schoolName}（${schoolId}） / ${teacherId} / ${className}」です。`);
+      setScanMessage(`現在の保存先は「${schoolName}（${schoolId}） / ${teacherId} / ${className}」です。`);
     }
 
     function createEmptyClass() {
+      const schoolId = normalizeSchoolId(document.getElementById("schoolIdInput").value);
+      const schoolName = normalizeSchoolName(document.getElementById("schoolNameInput").value);
       const teacherId = normalizeTeacherId(document.getElementById("teacherIdInput").value);
       const className = normalizeClassName(document.getElementById("classNameInput").value);
 
-      if (!teacherId || !className) {
-        setSettingsMessage("教師IDとクラス名を入力してから作成してください。");
+      if (!schoolId || !schoolName || !teacherId || !className) {
+        setSettingsMessage("学校ID・学校名・教師ID・クラス名を入力してから作成してください。");
         return;
       }
 
-      ensureClass(teacherId, className);
+      ensureClass(schoolId, teacherId, className, schoolName);
       saveDb();
       renderSavedClassList();
-      setSettingsMessage(`空のクラス「${teacherId} / ${className}」を作成しました。`);
+      setSettingsMessage(`空のクラス「${schoolName}（${schoolId}） / ${teacherId} / ${className}」を作成しました。`);
     }
 
     function addStudent() {
       if (!isContextReady()) {
-        setAdminMessage("先に保存設定で教師IDとクラス名を設定してください。");
+        setAdminMessage("先に保存設定で学校ID・学校名・教師ID・クラス名を設定してください。");
         return;
       }
 
@@ -811,7 +858,7 @@
       cards.innerHTML = "";
 
       if (!isContextReady()) {
-        tbody.innerHTML = `<tr><td colspan="8">保存設定で教師IDとクラス名を設定してください。</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8">保存設定で学校ID・学校名・教師ID・クラス名を設定してください。</td></tr>`;
         cards.innerHTML = `<div class="message-box">設定後にここへ表示されます。</div>`;
         return;
       }
@@ -848,6 +895,7 @@
         card.className = "student-card";
         card.innerHTML = `
           <h3>${escapeHtml(context.className)} ${escapeHtml(student.number)}番 ${escapeHtml(student.name)}</h3>
+          <p>学校名：${escapeHtml(context.schoolName)}</p>
           <p>称号：${student.title}</p>
           <p>レベル：${student.level}</p>
           <p>経験値：${student.exp} / 20</p>
@@ -924,8 +972,8 @@
       const qrCanvas = await makeQrCanvas(student);
 
       const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = 340;
-      finalCanvas.height = 420;
+      finalCanvas.width = 390;
+      finalCanvas.height = 470;
       const ctx2 = finalCanvas.getContext("2d");
 
       ctx2.fillStyle = "#ffffff";
@@ -934,18 +982,20 @@
       ctx2.fillStyle = "#1a1a1a";
       ctx2.textAlign = "center";
       ctx2.font = "bold 22px sans-serif";
-      ctx2.fillText("提出RPG QR", 170, 35);
+      ctx2.fillText("提出RPG QR", 195, 35);
 
-      ctx2.font = "17px sans-serif";
-      ctx2.fillText(`教師ID: ${context.teacherId}`, 170, 65);
-      ctx2.fillText(`クラス: ${context.className}`, 170, 92);
-      ctx2.fillText(`${student.number}番 ${student.name}`, 170, 119);
+      ctx2.font = "15px sans-serif";
+      ctx2.fillText(`学校名: ${context.schoolName}`, 195, 62);
+      ctx2.fillText(`学校ID: ${context.schoolId}`, 195, 87);
+      ctx2.fillText(`教師ID: ${context.teacherId}`, 195, 112);
+      ctx2.fillText(`クラス: ${context.className}`, 195, 137);
+      ctx2.fillText(`${student.number}番 ${student.name}`, 195, 162);
 
-      ctx2.drawImage(qrCanvas, 60, 145, 220, 220);
+      ctx2.drawImage(qrCanvas, 85, 185, 220, 220);
 
       const link = document.createElement("a");
       link.href = finalCanvas.toDataURL("image/png");
-      link.download = `${context.teacherId}_${context.className}_${student.number}_${student.name}_QR.png`;
+      link.download = `${context.schoolId}_${context.teacherId}_${context.className}_${student.number}_${student.name}_QR.png`;
       link.click();
     }
 
@@ -968,8 +1018,8 @@
         const qrCanvas = await makeQrCanvas(student);
 
         const finalCanvas = document.createElement("canvas");
-        finalCanvas.width = 340;
-        finalCanvas.height = 420;
+        finalCanvas.width = 390;
+        finalCanvas.height = 470;
         const ctx2 = finalCanvas.getContext("2d");
 
         ctx2.fillStyle = "#ffffff";
@@ -978,19 +1028,21 @@
         ctx2.fillStyle = "#1a1a1a";
         ctx2.textAlign = "center";
         ctx2.font = "bold 22px sans-serif";
-        ctx2.fillText("提出RPG QR", 170, 35);
+        ctx2.fillText("提出RPG QR", 195, 35);
 
-        ctx2.font = "17px sans-serif";
-        ctx2.fillText(`教師ID: ${context.teacherId}`, 170, 65);
-        ctx2.fillText(`クラス: ${context.className}`, 170, 92);
-        ctx2.fillText(`${student.number}番 ${student.name}`, 170, 119);
+        ctx2.font = "15px sans-serif";
+        ctx2.fillText(`学校名: ${context.schoolName}`, 195, 62);
+        ctx2.fillText(`学校ID: ${context.schoolId}`, 195, 87);
+        ctx2.fillText(`教師ID: ${context.teacherId}`, 195, 112);
+        ctx2.fillText(`クラス: ${context.className}`, 195, 137);
+        ctx2.fillText(`${student.number}番 ${student.name}`, 195, 162);
 
-        ctx2.drawImage(qrCanvas, 60, 145, 220, 220);
+        ctx2.drawImage(qrCanvas, 85, 185, 220, 220);
 
         const dataUrl = finalCanvas.toDataURL("image/png");
         const base64 = dataUrl.split(",")[1];
         zip.file(
-          `${context.teacherId}_${context.className}_${student.number}_${student.name}_QR.png`,
+          `${context.schoolId}_${context.teacherId}_${context.className}_${student.number}_${student.name}_QR.png`,
           base64,
           { base64: true }
         );
@@ -999,7 +1051,7 @@
       const content = await zip.generateAsync({ type: "blob" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(content);
-      link.download = `${context.teacherId}_${context.className}_QRコード一括.zip`;
+      link.download = `${context.schoolId}_${context.teacherId}_${context.className}_QRコード一括.zip`;
       link.click();
 
       setAdminMessage("全員分のQRコードをZIPで保存しました。");
@@ -1034,6 +1086,8 @@
 
       box.innerHTML = `
         <h3 style="margin-top:0;color:#ffe39b;">${context.className} ${student.number}番 ${escapeHtml(student.name)}</h3>
+        <p style="margin-top:0;">学校名: ${escapeHtml(context.schoolName)}</p>
+        <p style="margin-top:0;">学校ID: ${escapeHtml(context.schoolId)}</p>
         <p style="margin-top:0;">教師ID: ${escapeHtml(context.teacherId)}</p>
         <div class="qr-box" id="qrPreviewTarget"></div>
         <div style="margin-top:14px;">
@@ -1060,7 +1114,7 @@
 
     async function startScanner() {
       if (!isContextReady()) {
-        setScanMessage("先に保存設定で教師IDとクラス名を設定してください。");
+        setScanMessage("先に保存設定で学校ID・学校名・教師ID・クラス名を設定してください。");
         return;
       }
 
@@ -1117,8 +1171,12 @@
         return;
       }
 
-      if (payload.teacherId !== context.teacherId || payload.className !== context.className) {
-        setScanMessage("別の教師IDまたは別クラスのQRコードです。現在の保存先とは一致しません。");
+      if (
+        payload.schoolId !== context.schoolId ||
+        payload.teacherId !== context.teacherId ||
+        payload.className !== context.className
+      ) {
+        setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
         return;
       }
 
@@ -1186,34 +1244,34 @@
       setScanMessage(`${student.name} さんの提出を記録しました。`);
     }
 
-   function showResult(student, subject, leveledUp) {
-  const card = document.getElementById("resultCard");
-  document.getElementById("resultName").textContent = `${context.className} ${student.number}番 ${student.name}`;
-  document.getElementById("resultTitle").textContent = `称号：${student.title}`;
-  document.getElementById("resultLevel").textContent = student.level;
-  document.getElementById("resultExp").textContent = student.exp;
-  document.getElementById("resultExpBar").style.width = `${(student.exp / 20) * 100}%`;
-  document.getElementById("resultSubject").textContent = `今回の提出教科：${subject}`;
-  document.getElementById("levelUpMessage").textContent = leveledUp ? "レベルアップ！ おめでとう！" : "";
+    function showResult(student, subject, leveledUp) {
+      const card = document.getElementById("resultCard");
+      document.getElementById("resultName").textContent = `${context.className} ${student.number}番 ${student.name}`;
+      document.getElementById("resultTitle").textContent = `称号：${student.title}`;
+      document.getElementById("resultLevel").textContent = student.level;
+      document.getElementById("resultExp").textContent = student.exp;
+      document.getElementById("resultExpBar").style.width = `${(student.exp / 20) * 100}%`;
+      document.getElementById("resultSubject").textContent = `今回の提出教科：${subject}`;
+      document.getElementById("levelUpMessage").textContent = leveledUp ? "レベルアップ！ おめでとう！" : "";
 
-  const img = document.getElementById("resultCharacterImage");
-  const imagePath = getImageByTitle(student.title);
+      const img = document.getElementById("resultCharacterImage");
+      const imagePath = getImageByTitle(student.title);
 
-  if (imagePath) {
-    img.src = imagePath;
-    img.style.display = "inline-block";
-  } else {
-    img.src = "";
-    img.style.display = "none";
-  }
+      if (imagePath) {
+        img.src = imagePath;
+        img.style.display = "inline-block";
+      } else {
+        img.src = "";
+        img.style.display = "none";
+      }
 
-  card.classList.add("show");
-  renderRadarChart(student);
+      card.classList.add("show");
+      renderRadarChart(student);
 
-  setTimeout(() => {
-    card.classList.remove("show");
-  }, 30000);
-}
+      setTimeout(() => {
+        card.classList.remove("show");
+      }, 30000);
+    }
 
     function renderRadarChart(student) {
       const canvas = document.getElementById("radarChart");
@@ -1266,6 +1324,8 @@
       }
 
       const exportObject = {
+        schoolId: context.schoolId,
+        schoolName: context.schoolName,
         teacherId: context.teacherId,
         className: context.className,
         students: getCurrentStudents()
@@ -1274,7 +1334,7 @@
       const blob = new Blob([JSON.stringify(exportObject, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `${context.teacherId}_${context.className}_提出RPGデータ.json`;
+      link.download = `${context.schoolId}_${context.teacherId}_${context.className}_提出RPGデータ.json`;
       link.click();
 
       setAdminMessage("今のクラスのデータを書き出しました。");
@@ -1296,8 +1356,14 @@
           const data = JSON.parse(e.target.result);
           if (!Array.isArray(data.students)) throw new Error();
 
-          ensureClass(context.teacherId, context.className);
-          db.teachers[context.teacherId].classes[context.className].students = data.students.map(s => ({
+          if (data.schoolName) {
+            ensureSchool(context.schoolId, data.schoolName);
+            context.schoolName = getSchoolNameById(context.schoolId) || context.schoolName;
+            saveContextToStorage();
+          }
+
+          ensureClass(context.schoolId, context.teacherId, context.className, context.schoolName);
+          db.schools[context.schoolId].teachers[context.teacherId].classes[context.className].students = data.students.map(s => ({
             id: s.id,
             number: s.number,
             name: s.name,
@@ -1314,6 +1380,7 @@
           saveDb();
           renderStudents();
           updateStatusArea();
+          renderSavedClassList();
           setAdminMessage("今のクラスにデータを読み込みました。");
         } catch {
           setAdminMessage("JSONデータの読み込みに失敗しました。");
@@ -1330,24 +1397,29 @@
         return;
       }
 
-      const ok = confirm(`本当に「${context.teacherId} / ${context.className}」の生徒データを初期化しますか？`);
+      const ok = confirm(`本当に「${context.schoolName}（${context.schoolId}） / ${context.teacherId} / ${context.className}」の生徒データを初期化しますか？`);
       if (!ok) return;
 
-      ensureClass(context.teacherId, context.className);
-      db.teachers[context.teacherId].classes[context.className].students = [];
+      ensureClass(context.schoolId, context.teacherId, context.className, context.schoolName);
+      db.schools[context.schoolId].teachers[context.teacherId].classes[context.className].students = [];
       saveDb();
 
       renderStudents();
       updateStatusArea();
       renderSavedClassList();
 
-      setSettingsMessage(`「${context.teacherId} / ${context.className}」を初期化しました。`);
+      setSettingsMessage(`「${context.schoolName}（${context.schoolId}） / ${context.teacherId} / ${context.className}」を初期化しました。`);
       setAdminMessage("現在のクラスのデータを初期化しました。");
     }
 
     function updateStatusArea() {
+      document.getElementById("statusSchoolId").textContent = context.schoolId || "未設定";
+      document.getElementById("statusSchoolName").textContent = context.schoolName || "未設定";
       document.getElementById("statusTeacherId").textContent = context.teacherId || "未設定";
       document.getElementById("statusClassName").textContent = context.className || "未設定";
+
+      document.getElementById("studentScreenSchoolId").textContent = context.schoolId || "未設定";
+      document.getElementById("studentScreenSchoolName").textContent = context.schoolName || "未設定";
       document.getElementById("studentScreenTeacherId").textContent = context.teacherId || "未設定";
       document.getElementById("studentScreenClassName").textContent = context.className || "未設定";
 
@@ -1359,40 +1431,50 @@
       const area = document.getElementById("savedClassList");
       area.innerHTML = "";
 
-      const teacherIds = Object.keys(db.teachers || {});
-      if (teacherIds.length === 0) {
+      const schoolIds = Object.keys(db.schools || {});
+      if (schoolIds.length === 0) {
         area.innerHTML = `<div class="message-box">まだ保存済みクラスはありません。</div>`;
         return;
       }
 
-      teacherIds.forEach(teacherId => {
-        const classes = db.teachers[teacherId].classes || {};
-        Object.keys(classes).forEach(className => {
-          const students = classes[className].students || [];
-          const card = document.createElement("div");
-          card.className = "student-card";
-          card.innerHTML = `
-            <h3>${escapeHtml(teacherId)} / ${escapeHtml(className)}</h3>
-            <p>生徒数：${students.length}人</p>
-            <button class="small-btn secondary" onclick="useSavedClass('${jsEscape(teacherId)}','${jsEscape(className)}')">この保存先を使う</button>
-          `;
-          area.appendChild(card);
+      schoolIds.forEach(schoolId => {
+        const schoolName = getSchoolNameById(schoolId) || schoolId;
+        const teachers = db.schools[schoolId].teachers || {};
+        Object.keys(teachers).forEach(teacherId => {
+          const classes = teachers[teacherId].classes || {};
+          Object.keys(classes).forEach(className => {
+            const students = classes[className].students || [];
+            const card = document.createElement("div");
+            card.className = "student-card";
+            card.innerHTML = `
+              <h3>${escapeHtml(schoolName)}（${escapeHtml(schoolId)}）</h3>
+              <p>教師ID：${escapeHtml(teacherId)}</p>
+              <p>クラス：${escapeHtml(className)}</p>
+              <p>生徒数：${students.length}人</p>
+              <button class="small-btn secondary" onclick="useSavedClass('${jsEscape(schoolId)}','${jsEscape(teacherId)}','${jsEscape(className)}')">この保存先を使う</button>
+            `;
+            area.appendChild(card);
+          });
         });
       });
     }
 
-    function useSavedClass(teacherId, className) {
+    function useSavedClass(schoolId, teacherId, className) {
+      context.schoolId = schoolId;
+      context.schoolName = getSchoolNameById(schoolId) || "";
       context.teacherId = teacherId;
       context.className = className;
       saveContextToStorage();
       refreshAllUI();
 
-      setSettingsMessage(`保存先を「${teacherId} / ${className}」に切り替えました。`);
-      setAdminMessage(`保存先を「${teacherId} / ${className}」に切り替えました。`);
-      setScanMessage(`現在の保存先は「${teacherId} / ${className}」です。`);
+      setSettingsMessage(`保存先を「${context.schoolName}（${schoolId}） / ${teacherId} / ${className}」に切り替えました。`);
+      setAdminMessage(`保存先を「${context.schoolName}（${schoolId}） / ${teacherId} / ${className}」に切り替えました。`);
+      setScanMessage(`現在の保存先は「${context.schoolName}（${schoolId}） / ${teacherId} / ${className}」です。`);
     }
 
     function refreshAllUI() {
+      document.getElementById("schoolIdInput").value = context.schoolId || "";
+      document.getElementById("schoolNameInput").value = context.schoolName || "";
       document.getElementById("teacherIdInput").value = context.teacherId || "";
       document.getElementById("classNameInput").value = context.className || "";
 
@@ -1419,13 +1501,13 @@
     refreshAllUI();
 
     if (isContextReady()) {
-      setAdminMessage(`現在の保存先は「${context.teacherId} / ${context.className}」です。`);
-      setScanMessage(`現在の保存先は「${context.teacherId} / ${context.className}」です。`);
+      setAdminMessage(`現在の保存先は「${context.schoolName}（${context.schoolId}） / ${context.teacherId} / ${context.className}」です。`);
+      setScanMessage(`現在の保存先は「${context.schoolName}（${context.schoolId}） / ${context.teacherId} / ${context.className}」です。`);
       setSettingsMessage("保存設定は読み込み済みです。必要ならここで切り替えてください。");
     } else {
-      setAdminMessage("最初に「保存設定」で教師IDとクラス名を設定してください。");
-      setScanMessage("最初に「保存設定」で教師IDとクラス名を設定してください。");
-      setSettingsMessage("教師IDとクラス名を設定して使い始めてください。");
+      setAdminMessage("最初に「保存設定」で学校ID・学校名・教師ID・クラス名を設定してください。");
+      setScanMessage("最初に「保存設定」で学校ID・学校名・教師ID・クラス名を設定してください。");
+      setSettingsMessage("学校ID・学校名・教師ID・クラス名を設定して使い始めてください。");
     }
   </script>
 </body>
