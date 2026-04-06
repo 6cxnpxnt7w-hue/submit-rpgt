@@ -1160,41 +1160,16 @@
     }
 
     function onScanSuccess(decodedText) {
-  if (!isContextReady()) {
-    setScanMessage("保存設定が未設定です。");
-    return;
-  }
+      if (!isContextReady()) {
+        setScanMessage("保存設定が未設定です。");
+        return;
+      }
 
-  const students = getCurrentStudents();
-  const scannedText = String(decodedText || "").trim();
-
-  let student = null;
-  const payload = parseQrPayload(scannedText);
-
-  if (payload) {
-    if (
-      payload.schoolId !== context.schoolId ||
-      payload.teacherId !== context.teacherId ||
-      payload.className !== context.className
-    ) {
-      setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
-      return;
-    }
-
-    student = students.find(s => s.id === payload.studentId);
-  } else {
-    student = students.find(s => String(s.id).trim() === scannedText);
-  }
-
-  if (!student) {
-    setScanMessage("このクラスに登録されていない生徒のQRコードです。");
-    return;
-  }
-
-  scannedStudentId = student.id;
-  document.getElementById("subjectPanel").style.display = "block";
-  setScanMessage(`「${context.className} ${student.number}番 ${student.name}」を読み取りました。教科を選んでください。`);
-}
+      const payload = parseQrPayload(decodedText);
+      if (!payload) {
+        setScanMessage("このQRコードはこのアプリ用ではありません。");
+        return;
+      }
 
       if (
         payload.schoolId !== context.schoolId ||
@@ -1534,6 +1509,55 @@
       setScanMessage("最初に「保存設定」で学校ID・学校名・教師ID・クラス名を設定してください。");
       setSettingsMessage("学校ID・学校名・教師ID・クラス名を設定して使い始めてください。");
     }
-   </script>
+    function startScanner() {
+  if (!getTeacherKey()) {
+    alert("先に先生キーを設定してください。");
+    return;
+  }
+
+  if (html5QrCode) return;
+
+  html5QrCode = new Html5Qrcode("reader");
+
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 280 },
+    (decodedText) => {
+      const scannedText = decodedText.trim();
+      currentScannedId = scannedText;
+
+      const students = loadData("students", []);
+      const student = students.find(
+        s => String(s.id).trim() === scannedText
+      );
+
+      if (!student) {
+        document.getElementById("scanMessage").textContent =
+          `未登録のQRコードです：${scannedText}`;
+        document.getElementById("studentStatus").innerHTML = "";
+        document.getElementById("titleImage").style.display = "none";
+        return;
+      }
+
+      const level = calcLevel(student.exp);
+      const titleInfo = getTitleByLevel(level);
+
+      document.getElementById("scanMessage").textContent =
+        `読み取り成功：${student.name}`;
+
+      document.getElementById("studentStatus").innerHTML = `
+        <div class="badge">ID ${student.id}</div>
+        <div class="badge">経験値 ${student.exp}</div>
+        <div class="badge">レベル ${level}</div>
+        <div class="badge">称号 ${titleInfo.title}</div>
+      `;
+    },
+    () => {}
+  ).catch(err => {
+    alert("カメラを起動できませんでした。");
+    console.error(err);
+  });
+}
+  </script>
 </body>
 </html>
