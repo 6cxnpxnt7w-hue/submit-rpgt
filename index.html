@@ -699,15 +699,15 @@
     }
 
     function buildQrPayload(student) {
-      return JSON.stringify({
-        app: "rpg-qr-system",
-        version: 1,
-        schoolId: context.schoolId,
-        teacherId: context.teacherId,
-        className: context.className,
-        studentId: student.id
-      });
-    }
+  return JSON.stringify({
+    app: "rpg-qr-system",
+    version: 2,
+    schoolId: context.schoolId,
+    teacherId: context.teacherId,
+    className: context.className,
+    number: String(student.number).trim()
+  });
+}
 
     function parseQrPayload(text) {
       try {
@@ -1160,39 +1160,48 @@
     }
 
     function onScanSuccess(decodedText) {
-      if (!isContextReady()) {
-        setScanMessage("保存設定が未設定です。");
-        return;
-      }
+  if (!isContextReady()) {
+    setScanMessage("保存設定が未設定です。");
+    return;
+  }
 
-      const payload = parseQrPayload(decodedText);
-      if (!payload) {
-        setScanMessage("このQRコードはこのアプリ用ではありません。");
-        return;
-      }
+  const students = getCurrentStudents();
+  const scannedText = String(decodedText || "").trim();
 
-      if (
-        payload.schoolId !== context.schoolId ||
-        payload.teacherId !== context.teacherId ||
-        payload.className !== context.className
-      ) {
-        setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
-        return;
-      }
+  let student = null;
+  const payload = parseQrPayload(scannedText);
 
-      const students = getCurrentStudents();
-      const student = students.find(s => s.id === payload.studentId);
+  if (!payload) {
+    setScanMessage("このQRコードはこのアプリ用ではありません。");
+    return;
+  }
 
-      if (!student) {
-        setScanMessage("このクラスに登録されていない生徒のQRコードです。");
-        return;
-      }
+  if (
+    payload.schoolId !== context.schoolId ||
+    payload.teacherId !== context.teacherId ||
+    payload.className !== context.className
+  ) {
+    setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
+    return;
+  }
 
-      scannedStudentId = student.id;
-      document.getElementById("subjectPanel").style.display = "block";
-      setScanMessage(`「${context.className} ${student.number}番 ${student.name}」を読み取りました。教科を選んでください。`);
-    }
+  if (payload.number) {
+    student = students.find(
+      s => String(s.number).trim() === String(payload.number).trim()
+    );
+  } else if (payload.studentId) {
+    student = students.find(s => s.id === payload.studentId);
+  }
 
+  if (!student) {
+    setScanMessage("このクラスに登録されていない生徒のQRコードです。");
+    return;
+  }
+
+  scannedStudentId = student.id;
+  document.getElementById("subjectPanel").style.display = "block";
+  setScanMessage(`「${context.className} ${student.number}番 ${student.name}」を読み取りました。教科を選んでください。`);
+}
     function applySubmission(subject) {
       if (!isContextReady()) {
         setScanMessage("保存設定が未設定です。");
