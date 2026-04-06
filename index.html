@@ -710,16 +710,20 @@
 }
 
     function parseQrPayload(text) {
-      try {
-        const obj = JSON.parse(text);
-        if (obj && obj.app === "rpg-qr-system" && obj.studentId) {
-          return obj;
-        }
-        return null;
-      } catch {
-        return null;
-      }
+  try {
+    const obj = JSON.parse(text);
+    if (
+      obj &&
+      obj.app === "rpg-qr-system" &&
+      (obj.studentId || obj.number)
+    ) {
+      return obj;
     }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
     function switchTab(tabId) {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
