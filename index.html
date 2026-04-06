@@ -534,8 +534,8 @@
   <div class="footer-note">GitHub Pages対応 / localStorage保存 / 学校名表示つき学校別・教師別・クラス別分離版</div>
 
   <script>
-    const APP_STORAGE_KEY = "rpg_qr_system_v8";
-    const APP_CONTEXT_KEY = "rpg_qr_system_context_v8";
+    const APP_STORAGE_KEY = "rpg_qr_system_v7";
+    const APP_CONTEXT_KEY = "rpg_qr_system_context_v7";
     const SUBJECTS = ["数学", "理科", "社会", "英語", "国語", "その他"];
 
     let html5QrCode = null;
@@ -701,7 +701,7 @@
     function buildQrPayload(student) {
       return JSON.stringify({
         app: "rpg-qr-system",
-        version: 2,
+        version: 1,
         schoolId: context.schoolId,
         teacherId: context.teacherId,
         className: context.className,
@@ -934,8 +934,8 @@
 
       new QRCode(box, {
         text: buildQrPayload(student),
-        width: 260,
-        height: 260
+        width: 220,
+        height: 220
       });
 
       return new Promise(resolve => {
@@ -947,8 +947,8 @@
             resolve(canvas);
           } else if (img) {
             const c = document.createElement("canvas");
-            c.width = 260;
-            c.height = 260;
+            c.width = 220;
+            c.height = 220;
             const ctx = c.getContext("2d");
             const tempImg = new Image();
             tempImg.onload = () => {
@@ -959,7 +959,7 @@
             };
             tempImg.src = img.src;
           }
-        }, 400);
+        }, 300);
       });
     }
 
@@ -972,8 +972,8 @@
       const qrCanvas = await makeQrCanvas(student);
 
       const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = 430;
-      finalCanvas.height = 520;
+      finalCanvas.width = 390;
+      finalCanvas.height = 470;
       const ctx2 = finalCanvas.getContext("2d");
 
       ctx2.fillStyle = "#ffffff";
@@ -981,17 +981,17 @@
 
       ctx2.fillStyle = "#1a1a1a";
       ctx2.textAlign = "center";
-      ctx2.font = "bold 24px sans-serif";
-      ctx2.fillText("提出RPG QR", 215, 38);
+      ctx2.font = "bold 22px sans-serif";
+      ctx2.fillText("提出RPG QR", 195, 35);
 
-      ctx2.font = "16px sans-serif";
-      ctx2.fillText(`学校名: ${context.schoolName}`, 215, 70);
-      ctx2.fillText(`学校ID: ${context.schoolId}`, 215, 98);
-      ctx2.fillText(`教師ID: ${context.teacherId}`, 215, 126);
-      ctx2.fillText(`クラス: ${context.className}`, 215, 154);
-      ctx2.fillText(`${student.number}番 ${student.name}`, 215, 182);
+      ctx2.font = "15px sans-serif";
+      ctx2.fillText(`学校名: ${context.schoolName}`, 195, 62);
+      ctx2.fillText(`学校ID: ${context.schoolId}`, 195, 87);
+      ctx2.fillText(`教師ID: ${context.teacherId}`, 195, 112);
+      ctx2.fillText(`クラス: ${context.className}`, 195, 137);
+      ctx2.fillText(`${student.number}番 ${student.name}`, 195, 162);
 
-      ctx2.drawImage(qrCanvas, 85, 210, 260, 260);
+      ctx2.drawImage(qrCanvas, 85, 185, 220, 220);
 
       const link = document.createElement("a");
       link.href = finalCanvas.toDataURL("image/png");
@@ -1018,8 +1018,8 @@
         const qrCanvas = await makeQrCanvas(student);
 
         const finalCanvas = document.createElement("canvas");
-        finalCanvas.width = 430;
-        finalCanvas.height = 520;
+        finalCanvas.width = 390;
+        finalCanvas.height = 470;
         const ctx2 = finalCanvas.getContext("2d");
 
         ctx2.fillStyle = "#ffffff";
@@ -1027,17 +1027,17 @@
 
         ctx2.fillStyle = "#1a1a1a";
         ctx2.textAlign = "center";
-        ctx2.font = "bold 24px sans-serif";
-        ctx2.fillText("提出RPG QR", 215, 38);
+        ctx2.font = "bold 22px sans-serif";
+        ctx2.fillText("提出RPG QR", 195, 35);
 
-        ctx2.font = "16px sans-serif";
-        ctx2.fillText(`学校名: ${context.schoolName}`, 215, 70);
-        ctx2.fillText(`学校ID: ${context.schoolId}`, 215, 98);
-        ctx2.fillText(`教師ID: ${context.teacherId}`, 215, 126);
-        ctx2.fillText(`クラス: ${context.className}`, 215, 154);
-        ctx2.fillText(`${student.number}番 ${student.name}`, 215, 182);
+        ctx2.font = "15px sans-serif";
+        ctx2.fillText(`学校名: ${context.schoolName}`, 195, 62);
+        ctx2.fillText(`学校ID: ${context.schoolId}`, 195, 87);
+        ctx2.fillText(`教師ID: ${context.teacherId}`, 195, 112);
+        ctx2.fillText(`クラス: ${context.className}`, 195, 137);
+        ctx2.fillText(`${student.number}番 ${student.name}`, 195, 162);
 
-        ctx2.drawImage(qrCanvas, 85, 210, 260, 260);
+        ctx2.drawImage(qrCanvas, 85, 185, 220, 220);
 
         const dataUrl = finalCanvas.toDataURL("image/png");
         const base64 = dataUrl.split(",")[1];
@@ -1101,8 +1101,8 @@
 
       new QRCode(document.getElementById("qrPreviewTarget"), {
         text: buildQrPayload(student),
-        width: 260,
-        height: 260
+        width: 220,
+        height: 220
       });
 
       document.getElementById("closeQrBtn").onclick = () => modal.remove();
@@ -1133,7 +1133,7 @@
       try {
         await html5QrCode.start(
           { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 280, height: 280 } },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
           onScanSuccess,
           () => {}
         );
@@ -1160,32 +1160,53 @@
     }
 
     function onScanSuccess(decodedText) {
-      if (!isContextReady()) {
-        setScanMessage("保存設定が未設定です。");
+  if (!isContextReady()) {
+    setScanMessage("保存設定が未設定です。");
+    return;
+  }
+
+  const students = getCurrentStudents();
+  const scannedText = String(decodedText || "").trim();
+
+  let student = null;
+  const payload = parseQrPayload(scannedText);
+
+  if (payload) {
+    if (
+      payload.schoolId !== context.schoolId ||
+      payload.teacherId !== context.teacherId ||
+      payload.className !== context.className
+    ) {
+      setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
+      return;
+    }
+
+    student = students.find(s => s.id === payload.studentId);
+  } else {
+    student = students.find(s => String(s.id).trim() === scannedText);
+  }
+
+  if (!student) {
+    setScanMessage("このクラスに登録されていない生徒のQRコードです。");
+    return;
+  }
+
+  scannedStudentId = student.id;
+  document.getElementById("subjectPanel").style.display = "block";
+  setScanMessage(`「${context.className} ${student.number}番 ${student.name}」を読み取りました。教科を選んでください。`);
+}
+
+      if (
+        payload.schoolId !== context.schoolId ||
+        payload.teacherId !== context.teacherId ||
+        payload.className !== context.className
+      ) {
+        setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
         return;
       }
 
       const students = getCurrentStudents();
-      const scannedText = String(decodedText || "").trim();
-
-      let student = null;
-
-      const payload = parseQrPayload(scannedText);
-
-      if (payload) {
-        if (
-          payload.schoolId !== context.schoolId ||
-          payload.teacherId !== context.teacherId ||
-          payload.className !== context.className
-        ) {
-          setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
-          return;
-        }
-
-        student = students.find(s => s.id === payload.studentId);
-      } else {
-        student = students.find(s => String(s.id).trim() === scannedText);
-      }
+      const student = students.find(s => s.id === payload.studentId);
 
       if (!student) {
         setScanMessage("このクラスに登録されていない生徒のQRコードです。");
@@ -1513,6 +1534,6 @@
       setScanMessage("最初に「保存設定」で学校ID・学校名・教師ID・クラス名を設定してください。");
       setSettingsMessage("学校ID・学校名・教師ID・クラス名を設定して使い始めてください。");
     }
-  </script>
+   </script>
 </body>
 </html>
