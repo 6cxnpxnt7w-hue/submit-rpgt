@@ -1550,8 +1550,10 @@
       schoolIds.forEach(schoolId => {
         const schoolName = getSchoolNameById(schoolId) || schoolId;
         const teachers = db.schools[schoolId].teachers || {};
+
         Object.keys(teachers).forEach(teacherId => {
           const classes = teachers[teacherId].classes || {};
+
           Object.keys(classes).forEach(className => {
             const students = classes[className].students || [];
             const card = document.createElement("div");
@@ -1562,6 +1564,7 @@
               <p>クラス：${escapeHtml(className)}</p>
               <p>生徒数：${students.length}人</p>
               <button class="small-btn secondary" onclick="useSavedClass('${jsEscape(schoolId)}','${jsEscape(teacherId)}','${jsEscape(className)}')">この保存先を使う</button>
+              <button class="small-btn danger" onclick="deleteSavedClass('${jsEscape(schoolId)}','${jsEscape(teacherId)}','${jsEscape(className)}')">この保存先を削除</button>
             `;
             area.appendChild(card);
           });
@@ -1580,6 +1583,61 @@
       setSettingsMessage(`保存先を「${context.schoolName}（${schoolId}） / ${teacherId} / ${className}」に切り替えました。`);
       setAdminMessage(`保存先を「${context.schoolName}（${schoolId}） / ${teacherId} / ${className}」に切り替えました。`);
       setScanMessage(`現在の保存先は「${context.schoolName}（${schoolId}） / ${teacherId} / ${className}」です。`);
+    }
+
+    function deleteSavedClass(schoolId, teacherId, className) {
+      const schoolName = getSchoolNameById(schoolId) || schoolId;
+
+      const ok = confirm(
+        `本当に「${schoolName}（${schoolId}） / ${teacherId} / ${className}」を削除しますか？\nこのクラスの生徒データも削除されます。`
+      );
+      if (!ok) return;
+
+      if (
+        db.schools &&
+        db.schools[schoolId] &&
+        db.schools[schoolId].teachers &&
+        db.schools[schoolId].teachers[teacherId] &&
+        db.schools[schoolId].teachers[teacherId].classes &&
+        db.schools[schoolId].teachers[teacherId].classes[className]
+      ) {
+        delete db.schools[schoolId].teachers[teacherId].classes[className];
+      }
+
+      if (
+        db.schools[schoolId] &&
+        db.schools[schoolId].teachers &&
+        db.schools[schoolId].teachers[teacherId] &&
+        Object.keys(db.schools[schoolId].teachers[teacherId].classes || {}).length === 0
+      ) {
+        delete db.schools[schoolId].teachers[teacherId];
+      }
+
+      if (
+        db.schools[schoolId] &&
+        Object.keys(db.schools[schoolId].teachers || {}).length === 0
+      ) {
+        delete db.schools[schoolId];
+      }
+
+      if (
+        context.schoolId === schoolId &&
+        context.teacherId === teacherId &&
+        context.className === className
+      ) {
+        context.schoolId = "";
+        context.schoolName = "";
+        context.teacherId = "";
+        context.className = "";
+        saveContextToStorage();
+      }
+
+      saveDb();
+      refreshAllUI();
+
+      setSettingsMessage(`「${schoolName}（${schoolId}） / ${teacherId} / ${className}」を削除しました。`);
+      setAdminMessage("保存済みクラスを削除しました。");
+      setScanMessage("保存済みクラスを削除しました。");
     }
 
     function refreshAllUI() {
@@ -1610,7 +1668,6 @@
     }
 
     refreshAllUI();
-    renderTodaySubmissionStatus();
 
     if (isContextReady()) {
       setAdminMessage(`現在の保存先は「${context.schoolName}（${context.schoolId}） / ${context.teacherId} / ${context.className}」です。`);
