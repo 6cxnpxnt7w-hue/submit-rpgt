@@ -383,6 +383,25 @@
       </div>
 
       <div class="panel">
+        <h2>今日の提出状況</h2>
+        <div class="status-line">
+          <span class="pill">今日提出済み: <span id="submittedTodayCount">0</span>人</span>
+          <span class="pill">今日未提出: <span id="notSubmittedTodayCount">0</span>人</span>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <h3>今日提出済み</h3>
+            <div id="submittedTodayList" class="message-box">まだ表示するデータがありません。</div>
+          </div>
+          <div class="col">
+            <h3>今日未提出</h3>
+            <div id="notSubmittedTodayList" class="message-box">まだ表示するデータがありません。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
         <h2>生徒一覧</h2>
         <div style="overflow-x:auto;">
           <table>
@@ -859,6 +878,56 @@
       setAdminMessage("番号順に並べ直しました。");
     }
 
+    function renderTodaySubmissionStatus() {
+      const submittedCountEl = document.getElementById("submittedTodayCount");
+      const notSubmittedCountEl = document.getElementById("notSubmittedTodayCount");
+      const submittedListEl = document.getElementById("submittedTodayList");
+      const notSubmittedListEl = document.getElementById("notSubmittedTodayList");
+
+      if (!submittedCountEl || !notSubmittedCountEl || !submittedListEl || !notSubmittedListEl) return;
+
+      if (!isContextReady()) {
+        submittedCountEl.textContent = "0";
+        notSubmittedCountEl.textContent = "0";
+        submittedListEl.textContent = "保存設定をすると表示されます。";
+        notSubmittedListEl.textContent = "保存設定をすると表示されます。";
+        return;
+      }
+
+      const students = getCurrentStudents();
+      const today = getTodayString();
+
+      if (students.length === 0) {
+        submittedCountEl.textContent = "0";
+        notSubmittedCountEl.textContent = "0";
+        submittedListEl.textContent = "このクラスにはまだ生徒が登録されていません。";
+        notSubmittedListEl.textContent = "このクラスにはまだ生徒が登録されていません。";
+        return;
+      }
+
+      const submittedToday = students.filter(student => student.lastScanDate === today);
+      const notSubmittedToday = students.filter(student => student.lastScanDate !== today);
+
+      submittedCountEl.textContent = submittedToday.length;
+      notSubmittedCountEl.textContent = notSubmittedToday.length;
+
+      if (submittedToday.length === 0) {
+        submittedListEl.textContent = "今日はまだ提出した生徒がいません。";
+      } else {
+        submittedListEl.innerHTML = submittedToday
+          .map(student => `${escapeHtml(student.number)}番 ${escapeHtml(student.name)}`)
+          .join("<br>");
+      }
+
+      if (notSubmittedToday.length === 0) {
+        notSubmittedListEl.textContent = "今日は全員提出済みです。";
+      } else {
+        notSubmittedListEl.innerHTML = notSubmittedToday
+          .map(student => `${escapeHtml(student.number)}番 ${escapeHtml(student.name)}`)
+          .join("<br>");
+      }
+    }
+
     function renderStudents() {
       const tbody = document.getElementById("studentTableBody");
       const cards = document.getElementById("studentCards");
@@ -868,6 +937,7 @@
       if (!isContextReady()) {
         tbody.innerHTML = `<tr><td colspan="8">保存設定で学校ID・学校名・教師ID・クラス名を設定してください。</td></tr>`;
         cards.innerHTML = `<div class="message-box">設定後にここへ表示されます。</div>`;
+        renderTodaySubmissionStatus();
         return;
       }
 
@@ -876,6 +946,7 @@
       if (students.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8">このクラスにはまだ生徒が登録されていません。</td></tr>`;
         cards.innerHTML = `<div class="message-box">生徒を登録するとここに表示されます。</div>`;
+        renderTodaySubmissionStatus();
         return;
       }
 
@@ -915,6 +986,8 @@
         `;
         cards.appendChild(card);
       });
+
+      renderTodaySubmissionStatus();
     }
 
     function deleteStudent(index) {
@@ -1516,6 +1589,7 @@
       document.getElementById("classNameInput").value = context.className || "";
 
       renderStudents();
+      renderTodaySubmissionStatus();
       renderSavedClassList();
       updateStatusArea();
     }
@@ -1536,6 +1610,7 @@
     }
 
     refreshAllUI();
+    renderTodaySubmissionStatus();
 
     if (isContextReady()) {
       setAdminMessage(`現在の保存先は「${context.schoolName}（${context.schoolId}） / ${context.teacherId} / ${context.className}」です。`);
