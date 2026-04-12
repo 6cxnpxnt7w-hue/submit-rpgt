@@ -809,7 +809,9 @@
       const students = getCurrentStudents();
       const id = buildStudentId(number, name);
 
-      const exists = students.some(s => s.id === id);
+      const exists = students.some(
+  s => String(s.number).trim() === String(number).trim()
+);
       if (exists) {
         setAdminMessage("同じ生徒はすでに登録されています。");
         return;
