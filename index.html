@@ -541,6 +541,8 @@
     let html5QrCode = null;
     let radarChart = null;
     let scannedStudentId = null;
+    let scannerRestartTimer = null;
+    let isHandlingScan = false;
 
     let db = loadDb();
     let context = loadContext();
@@ -699,31 +701,31 @@
     }
 
     function buildQrPayload(student) {
-  return JSON.stringify({
-    app: "rpg-qr-system",
-    version: 2,
-    schoolId: context.schoolId,
-    teacherId: context.teacherId,
-    className: context.className,
-    number: String(student.number).trim()
-  });
-}
+      return JSON.stringify({
+        app: "rpg-qr-system",
+        version: 2,
+        schoolId: context.schoolId,
+        teacherId: context.teacherId,
+        className: context.className,
+        number: String(student.number).trim()
+      });
+    }
 
     function parseQrPayload(text) {
-  try {
-    const obj = JSON.parse(text);
-    if (
-      obj &&
-      obj.app === "rpg-qr-system" &&
-      (obj.studentId || obj.number)
-    ) {
-      return obj;
+      try {
+        const obj = JSON.parse(text);
+        if (
+          obj &&
+          obj.app === "rpg-qr-system" &&
+          (obj.studentId || obj.number)
+        ) {
+          return obj;
+        }
+        return null;
+      } catch {
+        return null;
+      }
     }
-    return null;
-  } catch {
-    return null;
-  }
-}
 
     function switchTab(tabId) {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -810,10 +812,10 @@
       const id = buildStudentId(number, name);
 
       const exists = students.some(
-  s => String(s.number).trim() === String(number).trim()
-);
+        s => String(s.number).trim() === String(number).trim()
+      );
       if (exists) {
-        setAdminMessage("同じ生徒はすでに登録されています。");
+        setAdminMessage("同じ出席番号の生徒はすでに登録されています。");
         return;
       }
 
@@ -940,8 +942,8 @@
 
       new QRCode(box, {
         text: buildQrPayload(student),
-        width: 220,
-        height: 220
+        width: 300,
+        height: 300
       });
 
       return new Promise(resolve => {
@@ -953,8 +955,8 @@
             resolve(canvas);
           } else if (img) {
             const c = document.createElement("canvas");
-            c.width = 220;
-            c.height = 220;
+            c.width = 300;
+            c.height = 300;
             const ctx = c.getContext("2d");
             const tempImg = new Image();
             tempImg.onload = () => {
@@ -978,8 +980,8 @@
       const qrCanvas = await makeQrCanvas(student);
 
       const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = 390;
-      finalCanvas.height = 470;
+      finalCanvas.width = 520;
+      finalCanvas.height = 640;
       const ctx2 = finalCanvas.getContext("2d");
 
       ctx2.fillStyle = "#ffffff";
@@ -988,16 +990,16 @@
       ctx2.fillStyle = "#1a1a1a";
       ctx2.textAlign = "center";
       ctx2.font = "bold 22px sans-serif";
-      ctx2.fillText("提出RPG QR", 195, 35);
+      ctx2.fillText("提出RPG QR", 260, 35);
 
       ctx2.font = "15px sans-serif";
-      ctx2.fillText(`学校名: ${context.schoolName}`, 195, 62);
-      ctx2.fillText(`学校ID: ${context.schoolId}`, 195, 87);
-      ctx2.fillText(`教師ID: ${context.teacherId}`, 195, 112);
-      ctx2.fillText(`クラス: ${context.className}`, 195, 137);
-      ctx2.fillText(`${student.number}番 ${student.name}`, 195, 162);
+      ctx2.fillText(`学校名: ${context.schoolName}`, 260, 62);
+      ctx2.fillText(`学校ID: ${context.schoolId}`, 260, 87);
+      ctx2.fillText(`教師ID: ${context.teacherId}`, 260, 112);
+      ctx2.fillText(`クラス: ${context.className}`, 260, 137);
+      ctx2.fillText(`${student.number}番 ${student.name}`, 260, 162);
 
-      ctx2.drawImage(qrCanvas, 85, 185, 220, 220);
+      ctx2.drawImage(qrCanvas, 110, 220, 300, 300);
 
       const link = document.createElement("a");
       link.href = finalCanvas.toDataURL("image/png");
@@ -1024,8 +1026,8 @@
         const qrCanvas = await makeQrCanvas(student);
 
         const finalCanvas = document.createElement("canvas");
-        finalCanvas.width = 390;
-        finalCanvas.height = 470;
+        finalCanvas.width = 520;
+        finalCanvas.height = 640;
         const ctx2 = finalCanvas.getContext("2d");
 
         ctx2.fillStyle = "#ffffff";
@@ -1034,16 +1036,16 @@
         ctx2.fillStyle = "#1a1a1a";
         ctx2.textAlign = "center";
         ctx2.font = "bold 22px sans-serif";
-        ctx2.fillText("提出RPG QR", 195, 35);
+        ctx2.fillText("提出RPG QR", 260, 35);
 
         ctx2.font = "15px sans-serif";
-        ctx2.fillText(`学校名: ${context.schoolName}`, 195, 62);
-        ctx2.fillText(`学校ID: ${context.schoolId}`, 195, 87);
-        ctx2.fillText(`教師ID: ${context.teacherId}`, 195, 112);
-        ctx2.fillText(`クラス: ${context.className}`, 195, 137);
-        ctx2.fillText(`${student.number}番 ${student.name}`, 195, 162);
+        ctx2.fillText(`学校名: ${context.schoolName}`, 260, 62);
+        ctx2.fillText(`学校ID: ${context.schoolId}`, 260, 87);
+        ctx2.fillText(`教師ID: ${context.teacherId}`, 260, 112);
+        ctx2.fillText(`クラス: ${context.className}`, 260, 137);
+        ctx2.fillText(`${student.number}番 ${student.name}`, 260, 162);
 
-        ctx2.drawImage(qrCanvas, 85, 185, 220, 220);
+        ctx2.drawImage(qrCanvas, 110, 220, 300, 300);
 
         const dataUrl = finalCanvas.toDataURL("image/png");
         const base64 = dataUrl.split(",")[1];
@@ -1107,8 +1109,8 @@
 
       new QRCode(document.getElementById("qrPreviewTarget"), {
         text: buildQrPayload(student),
-        width: 220,
-        height: 220
+        width: 300,
+        height: 300
       });
 
       document.getElementById("closeQrBtn").onclick = () => modal.remove();
@@ -1122,6 +1124,11 @@
       if (!isContextReady()) {
         setScanMessage("先に保存設定で学校ID・学校名・教師ID・クラス名を設定してください。");
         return;
+      }
+
+      if (scannerRestartTimer) {
+        clearTimeout(scannerRestartTimer);
+        scannerRestartTimer = null;
       }
 
       if (!window.Html5Qrcode) {
@@ -1139,7 +1146,7 @@
       try {
         await html5QrCode.start(
           { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
+          { fps: 10, qrbox: { width: 280, height: 280 } },
           onScanSuccess,
           () => {}
         );
@@ -1152,62 +1159,72 @@
 
     async function stopScanner() {
       if (!html5QrCode) {
-        setScanMessage("カメラは停止中です。");
         return;
       }
 
       try {
         await html5QrCode.stop();
         await html5QrCode.clear();
-      } catch (e) {}
+      } catch (e) {
+      }
 
       html5QrCode = null;
-      setScanMessage("カメラを停止しました。");
     }
 
-    function onScanSuccess(decodedText) {
-  if (!isContextReady()) {
-    setScanMessage("保存設定が未設定です。");
-    return;
-  }
+    async function onScanSuccess(decodedText) {
+      if (isHandlingScan) return;
+      isHandlingScan = true;
 
-  const students = getCurrentStudents();
-  const scannedText = String(decodedText || "").trim();
+      try {
+        if (!isContextReady()) {
+          setScanMessage("保存設定が未設定です。");
+          return;
+        }
 
-  let student = null;
-  const payload = parseQrPayload(scannedText);
+        const students = getCurrentStudents();
+        const scannedText = String(decodedText || "").trim();
 
-  if (!payload) {
-    setScanMessage("このQRコードはこのアプリ用ではありません。");
-    return;
-  }
+        let student = null;
+        const payload = parseQrPayload(scannedText);
 
-  if (
-    payload.schoolId !== context.schoolId ||
-    payload.teacherId !== context.teacherId ||
-    payload.className !== context.className
-  ) {
-    setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
-    return;
-  }
+        if (!payload) {
+          setScanMessage("このQRコードはこのアプリ用ではありません。");
+          return;
+        }
 
-  if (payload.number) {
-    student = students.find(
-      s => String(s.number).trim() === String(payload.number).trim()
-    );
-  } else if (payload.studentId) {
-    student = students.find(s => s.id === payload.studentId);
-  }
+        if (
+          payload.schoolId !== context.schoolId ||
+          payload.teacherId !== context.teacherId ||
+          payload.className !== context.className
+        ) {
+          setScanMessage("別の学校ID・教師ID・クラスのQRコードです。現在の保存先とは一致しません。");
+          return;
+        }
 
-  if (!student) {
-    setScanMessage("このクラスに登録されていない生徒のQRコードです。");
-    return;
-  }
+        if (payload.number) {
+          student = students.find(
+            s => String(s.number).trim() === String(payload.number).trim()
+          );
+        } else if (payload.studentId) {
+          student = students.find(s => s.id === payload.studentId);
+        }
 
-  scannedStudentId = student.id;
-  document.getElementById("subjectPanel").style.display = "block";
-  setScanMessage(`「${context.className} ${student.number}番 ${student.name}」を読み取りました。教科を選んでください。`);
-}
+        if (!student) {
+          setScanMessage("このクラスに登録されていない生徒のQRコードです。");
+          return;
+        }
+
+        scannedStudentId = student.id;
+
+        await stopScanner();
+
+        document.getElementById("subjectPanel").style.display = "block";
+        setScanMessage(`「${context.className} ${student.number}番 ${student.name}」を読み取りました。教科を選んでください。`);
+      } finally {
+        isHandlingScan = false;
+      }
+    }
+
     function applySubmission(subject) {
       if (!isContextReady()) {
         setScanMessage("保存設定が未設定です。");
@@ -1257,6 +1274,11 @@
       scannedStudentId = null;
       document.getElementById("subjectPanel").style.display = "none";
       setScanMessage(`${student.name} さんの提出を記録しました。`);
+
+      if (scannerRestartTimer) clearTimeout(scannerRestartTimer);
+      scannerRestartTimer = setTimeout(() => {
+        startScanner();
+      }, 1000);
     }
 
     function showResult(student, subject, leveledUp) {
