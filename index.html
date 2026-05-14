@@ -1678,6 +1678,126 @@
       setScanMessage("最初に「保存設定」で学校ID・学校名・教師ID・クラス名を設定してください。");
       setSettingsMessage("学校ID・学校名・教師ID・クラス名を設定して使い始めてください。");
     }
+    function getYesterdayString() {
+  const now = new Date();
+  now.setDate(now.getDate() - 1);
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function calculateStreakBonus(student, today) {
+  if (!student.streak) student.streak = 0;
+
+  const yesterday = getYesterdayString();
+
+  if (student.lastScanDate === yesterday) {
+    student.streak += 1;
+  } else {
+    student.streak = 1;
+  }
+
+  if (student.streak % 4 === 0) {
+    return { bonusExp: 10, message: `🔥 ${student.streak}日連続ボーナス！ +10EXP` };
+  }
+
+  if (student.streak % 3 === 0) {
+    return { bonusExp: 5, message: `✨ ${student.streak}日連続ボーナス！ +5EXP` };
+  }
+
+  return { bonusExp: 0, message: `現在 ${student.streak}日連続提出中！` };
+}
+
+function applySubmission(subject) {
+  if (!isContextReady()) {
+    setScanMessage("保存設定が未設定です。");
+    return;
+  }
+
+  if (!scannedStudentId) {
+    setScanMessage("先にQRコードを読み取ってください。");
+    return;
+  }
+
+  const students = getCurrentStudents();
+  const student = students.find(s => s.id === scannedStudentId);
+
+  if (!student) {
+    setScanMessage("生徒データが見つかりません。");
+    return;
+  }
+
+  const today = getTodayString();
+
+  if (student.lastScanDate === today) {
+    setScanMessage(`${student.name} さんは今日はすでに提出済みです。`);
+    return;
+  }
+
+  const beforeLevel = student.level;
+  const streakResult = calculateStreakBonus(student, today);
+
+  student.exp += 5 + streakResult.bonusExp;
+  student.lastScanDate = today;
+
+  if (!student.subjectCounts) student.subjectCounts = defaultSubjects();
+  student.subjectCounts[subject] = (student.subjectCounts[subject] || 0) + 1;
+
+  while (student.exp >= 20) {
+    student.exp -= 20;
+    student.level += 1;
+  }
+
+  student.title = getTitleByLevel(student.level);
+
+  setCurrentStudents(students);
+  renderStudents();
+  updateStatusArea();
+
+  const leveledUp = student.level > beforeLevel;
+  showResult(student, subject, leveledUp, streakResult.message);
+
+  scannedStudentId = null;
+  document.getElementById("subjectPanel").style.display = "none";
+  setScanMessage(`${student.name} さんの提出を記録しました。`);
+}
+
+function showResult(student, subject, leveledUp, streakMessage = "") {
+  const card = document.getElementById("resultCard");
+
+  document.getElementById("resultName").textContent =
+    `${context.className} ${student.number}番 ${student.name}`;
+
+  document.getElementById("resultTitle").textContent =
+    `称号：${student.title}`;
+
+  document.getElementById("resultLevel").textContent = student.level;
+  document.getElementById("resultExp").textContent = student.exp;
+  document.getElementById("resultExpBar").style.width = `${(student.exp / 20) * 100}%`;
+  document.getElementById("resultSubject").textContent = `今回の提出教科：${subject}`;
+
+  document.getElementById("levelUpMessage").textContent =
+    `${leveledUp ? "レベルアップ！ おめでとう！ " : ""}${streakMessage}`;
+
+  const img = document.getElementById("resultCharacterImage");
+  const imagePath = getImageByTitle(student.title);
+
+  if (imagePath) {
+    img.src = imagePath;
+    img.style.display = "inline-block";
+  } else {
+    img.src = "";
+    img.style.display = "none";
+  }
+
+  card.classList.add("show");
+  renderRadarChart(student);
+
+  setTimeout(() => {
+    card.classList.remove("show");
+  }, 30000);
+}
   </script>
 </body>
 </html>
